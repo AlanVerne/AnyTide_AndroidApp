@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Бали приливы</string>
+    <string name="title_activity_main">Бали приливы</string>
+    <string name="info">данные с сайта <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
+    <string name="title_activity_widget_config">Настроить виджет</string>
+</resources>
