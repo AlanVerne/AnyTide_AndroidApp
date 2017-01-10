@@ -21,32 +21,28 @@ import java.util.TimeZone;
 
 
 public class Port {
-    public String id = null;
-
+    public final String id;
     private String name = null;
-
-    public final String[] nameWords;
-    public final String[] altNames;
-    public final String[] countyAndArea;
-    public final LatLng position;
-    public int min;
-    public int max;
-    public MarkerOptions markerOptions;
-    public Marker marker = null;
+    private final String[] nameWords;
+    private final String[] altNames;
+    private final String[] countyAndArea;
+    public  final LatLng   position;
+//    public int min;
+//    public int max;
+//    public MarkerOptions markerOptions;
+    public Marker  marker   = null;
     public boolean favorite = false;
-    public int utc = +8;
-    public float distance = -1;
-
-//    private TideData tideData = null;
+    public int     utc      = +8;
+    public float   distance = -1;
 
 
-    public Port(String name, LatLng position) {
-        this.name = name;
-        this.nameWords = name.split(" ");
-        this.position = position;
-        this.altNames = null;
-        this.countyAndArea = null;
-    }
+//    public Port(String name, LatLng position) {
+//        this.name = name;
+//        this.nameWords = name.split(" ");
+//        this.position = position;
+//        this.altNames = null;
+//        this.countyAndArea = null;
+//    }
     public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position) {
         this.id = id;
         this.name = name;
@@ -55,7 +51,8 @@ public class Port {
         this.countyAndArea = countyAndArea;
         this.position = position;
     }
-    public Port(String name, String[] altNames, String[] countyAndArea, LatLng position, int utc) {
+    public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position, int utc) {
+        this.id = id;
         this.name = name;
         this.nameWords = name.split(" ");
         this.altNames = altNames;
@@ -63,11 +60,6 @@ public class Port {
         this.position = position;
         this.utc = utc;
     }
-
-
-//    public TideData getTideData() {
-//        tideData = TideDataProvider.getInstance().getTideData();
-//    }
 
 
     public String getName() {
@@ -98,7 +90,12 @@ public class Port {
 
 
     public String getDistanceString() {
-        return distance < 0 ? "" : (distance > 10000 ? String.valueOf((int)(distance/1000)) : String.valueOf((int)(distance/100) / 10f)) + "km";
+        if (this.distance < 0)  return "";
+
+        float distance = DistanceUnits.fix(this.distance);
+
+        if (distance > 10000)   return String.valueOf((int)(distance / 1000)) + DistanceUnits.getUnit();
+        else                    return String.valueOf((int)(distance / 100) / 10f) + DistanceUnits.getUnit();
     }
 
 

@@ -13,4 +13,6 @@
     <string name="choose_port">Choisissez le port…</string>
     <string name="update">Mettre à jour</string>
     <string name="search_for">Rechercher…</string>
+    <string name="no_data">Pas de données</string>
+    <string name="different_time_zone">Différent fuseau horaire: UTC+</string>
 </resources>

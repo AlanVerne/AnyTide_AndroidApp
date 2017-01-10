@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import java.util.Calendar;
+
 /**
  * Created by Alan on 20 Jun 2016.
  */
@@ -14,11 +16,11 @@ public class AlarmManagerUtils {
         String interval = "1";
 
         AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        long intervalMillis = 5*60*1000;
+        long intervalMillis = 10*60*1000;
 
         PendingIntent pi = getAlarmIntent(context);
         am.cancel(pi);
-        am.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), intervalMillis, pi);
+        am.setRepeating(AlarmManager.RTC, Calendar.getInstance().getTimeInMillis(), intervalMillis, pi);
     }
 
     private static PendingIntent getAlarmIntent(Context context) {

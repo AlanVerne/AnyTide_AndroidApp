@@ -44,6 +44,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.avaa.balitidewidget.data.DistanceUnits;
 import com.avaa.balitidewidget.data.TideChartDrawer;
 import com.avaa.balitidewidget.views.ExtendedEditText;
 import com.avaa.balitidewidget.views.ObservableScrollView;
@@ -114,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
     private int shownDay = -1;
     private TideData tideData = null;
 
-    private CheckBox cb24h;
     private MapView mvMap;
     private View vSpace;
     private LinearLayout llScroll;
@@ -305,6 +305,8 @@ public class MainActivity extends AppCompatActivity {
 
         PORTS.load(sharedPreferences);
 
+        DistanceUnits.init();
+
         density = getResources().getDisplayMetrics().density;
         drawer = new TideChartDrawer(density, false);
 
@@ -345,7 +347,6 @@ public class MainActivity extends AppCompatActivity {
         imageViews[3] = (ImageView) findViewById(R.id.iv4);
         imageViews[4] = (ImageView) findViewById(R.id.iv5);
 
-        cb24h = (CheckBox) findViewById(R.id.cb24h);
         llPortHeader = (LinearLayout) findViewById(R.id.llPortHeader);
         vSpace = findViewById(R.id.space);
         llScroll = (LinearLayout) findViewById(R.id.llScroll);
@@ -824,7 +825,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvDifferentTimeZoneLabel = (TextView)findViewById(R.id.tvDifferentTimeZoneLabel);
         LinearLayout llDifferentTimeZoneLabel = (LinearLayout)findViewById(R.id.llDifferentTimeZoneLabel);
         if (selectedPort.utc != 8) {
-            tvDifferentTimeZoneLabel.setText("Different timezone: UTC+" + selectedPort.utc);
+            tvDifferentTimeZoneLabel.setText(getString(R.string.different_time_zone) + selectedPort.utc);
             llDifferentTimeZoneLabel.setVisibility(View.VISIBLE);
         }
         else {
@@ -899,7 +900,7 @@ public class MainActivity extends AppCompatActivity {
 
     TideChartsAsyncDrawer aDrawer = null;
     private void updateCharts() {
-        tideData = tideDataProvider.getTideData(selectedPort);
+        tideData = tideDataProvider.get(selectedPort);
 
         Point size = getImageSize();
         if (size.x == 0 || size.y == 0) return;

@@ -59,19 +59,32 @@ public class TideDataProvider {
     }
 
 
+    public TideData get(Port port, int needDays, Runnable afterFetch) {
+        TideData tideData = portIDToTideData.get(port.id);
+        if (tideData == null || tideData.needAndCanUpdate(needDays)) fetch(port, afterFetch);
+        if (tideData != null && tideData.isEmpty()) tideData = null;
+        return tideData;
+    }
+    public TideData get(Port port) {
+        TideData tideData = portIDToTideData.get(port.id);
+        if (tideData == null || tideData.needAndCanUpdate()) fetch(port);
+        if (tideData != null && tideData.isEmpty()) tideData = null;
+        return tideData;
+    }
+
+
     public void fetch(@NonNull Port port) {
         fetch(port, null);
     }
     public void fetch(@NonNull Port port, @Nullable final Runnable widgetsRunnable) {
-        Log.i(TAG, "Fetch " + port);
+        Log.i(TAG, "fetch() | " + port);
 
         TideData tideData = portIDToTideData.get(port.id);
         if (tideData != null) {
-            //Log.i(TAG, "Current tidedata " + tideData.toString());
             tideData.fetched = System.currentTimeMillis();
         }
         else {
-            Log.i(TAG, "Current tidedata null");
+            Log.i(TAG, "fetch() | current tidedata null");
             portIDToTideData.put(port.id, new TideData(System.currentTimeMillis()));
         }
 
@@ -91,6 +104,16 @@ public class TideDataProvider {
     }
 
 
+    // --
+
+
+    private TideDataProvider(Ports ports, SharedPreferences sharedPreferences) {
+        this.ports = ports;
+        this.sharedPreferences = sharedPreferences;
+        load();
+    }
+
+
     private void fireLoadingStateChanged(String portID, boolean loading) {
         for (TideDataProviderListener listener : listeners) {
             listener.loadingStateChanged(portID, loading);
@@ -103,32 +126,11 @@ public class TideDataProvider {
     }
 
 
-    private TideDataProvider(Ports ports, SharedPreferences sharedPreferences) {
-        this.ports = ports;
-        this.sharedPreferences = sharedPreferences;
-        load();
-    }
-
-
-    private void newTideDataFetched(String portID, TideData tideData) {
+    private void newDataFetched(String portID, TideData tideData) {
         portIDToTideData.put(portID, tideData);
         save(portID);
 
         fireUpdated(portID);
-    }
-
-
-    public TideData getTideData(Port port, int needDays, Runnable afterFetch) {
-        TideData tideData = portIDToTideData.get(port.id);
-        if (tideData == null || tideData.needAndCanUpdate(needDays)) fetch(port, afterFetch);
-        if (tideData != null && tideData.isEmpty()) tideData = null;
-        return tideData;
-    }
-    public TideData getTideData(Port port) {
-        TideData tideData = portIDToTideData.get(port.id);
-        if (tideData == null || tideData.needAndCanUpdate()) fetch(port);
-        if (tideData != null && tideData.isEmpty()) tideData = null;
-        return tideData;
     }
 
 
@@ -139,8 +141,8 @@ public class TideDataProvider {
         private final TideDataProvider tideDataProvider;
         private final Port port;
 
-        public FetchTideDataAsyncTask(TideDataProvider tideDataProvider, Port port, Runnable runAfter) {
-            Log.i(TAG, "new FetchTideDataAsyncTask for " + port);
+        FetchTideDataAsyncTask(TideDataProvider tideDataProvider, Port port, Runnable runAfter) {
+            Log.i(TAG, "new FetchTideDataAsyncTask() | for " + port);
 
             this.tideDataProvider = tideDataProvider;
             this.port = port;
@@ -148,7 +150,7 @@ public class TideDataProvider {
         }
 
         protected TideData doInBackground(String... addr) {
-            Log.i(TAG, "doInBackground");
+            Log.i(TAG, "doInBackground()");
 
             URL url;
             BufferedReader reader = null;
@@ -173,14 +175,10 @@ public class TideDataProvider {
 
                 String[] split = result.toString("ASCII").split("\n--\n"); //"UTF-8").split("\n--\n");
 
-//                Log.i("BTW", split.length+" ");
-//                Log.i("BTW", split[0]);
-//                Log.i("BTW", split[1]);
-
                 long currentTimeMillis = System.currentTimeMillis();
                 return new TideData(port.getTimeZone(), split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
             } catch (Exception e) {
-                Log.i(TAG, "Fetch failed");
+                Log.i(TAG, "doInBackground() | fetch failed");
                 e.printStackTrace();
             } finally {
                 if (reader != null) {
@@ -193,15 +191,16 @@ public class TideDataProvider {
             }
             return null;
         }
+
         protected void onPostExecute(TideData tideData) {
-            Log.i(TAG, "onPostExecute | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
+            Log.i(TAG, "onPostExecute() | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
 
             tideDataProvider.fireLoadingStateChanged(port.id, false);
 
             if (tideData == null) return;
             if (tideData.equals(tideDataProvider.portIDToTideData.get(port.id))) return;
 
-            tideDataProvider.newTideDataFetched(port.id, tideData);
+            tideDataProvider.newDataFetched(port.id, tideData);
 
             if (runnable != null) runnable.run();
         }
@@ -237,6 +236,8 @@ public class TideDataProvider {
 
         edit.apply();
     }
+
+
 //    private void saveAll() {
 //        SharedPreferences.Editor edit = sharedPreferences.edit();
 //

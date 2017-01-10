@@ -61,7 +61,9 @@ public class TideWidget extends AppWidgetProvider {
             String portID = portID(appWidgetId);
             Port port = ports.get(portID);
 
-            TideData tideData = tideDataProvider.getTideData(port, 3, new WidgetsUpdater(context));
+            if (port == null) return;
+
+            TideData tideData = tideDataProvider.get(port, 3, new WidgetsUpdater(context));
             Point widgetSize = AppWidgetSizeUtils.getSizeInPixels(appWidgetManager, appWidgetId);
 
             updateWidget(context, appWidgetManager, widgetSize, appWidgetId,
@@ -80,7 +82,9 @@ public class TideWidget extends AppWidgetProvider {
         String portID = portID(appWidgetId);
         Port port = ports.get(portID);
 
-        TideData tideData = tideDataProvider.getTideData(port, 3, new WidgetsUpdater(context));
+        if (port == null) return;
+
+        TideData tideData = tideDataProvider.get(port, 3, new WidgetsUpdater(context));
 
         updateWidget(context, appWidgetManager, size, appWidgetId,
                      portID, port, tideData, showTomorrow(port), hourly);

@@ -62,20 +62,19 @@ public class Ports extends LinkedHashMap<String, Port> {
 
 
     public Ports() {
-//        put("8954", new Port("Adams Harbour", new LatLng(51.6849, 128.1044)));
-//        put("8956", new Port("Adams (Welcome) Harbour", new String[]{"Hell"}, new String[]{"Bali", "Indonesia"}, new LatLng(51.6849, 68.1044), 5));
+        String[] indonesiaBali = {"Bali", "Indonesia"};
 
-        put("5382", new Port("5382", "Benoa", new String[]{"Denpasar"}, new String[]{"Bali", "Indonesia"}, new LatLng(-8.746247, 115.211678)));
-        put("5379", new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, new String[]{"Bali", "Indonesia"}, new LatLng(-8.164220, 115.019817)));
+        put("5382", new Port("5382", "Benoa", new String[]{"Denpasar", "Old", "Batu"}, indonesiaBali, new LatLng(-8.746247, 115.211678)));
+        put("5379", new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, indonesiaBali, new LatLng(-8.164220, 115.019817)));
 
-        put("5381", new Port("5381", "Sanur", new String[]{"Denpasar"}, new String[]{"Bali", "Indonesia"}, new LatLng(-8.691562, 115.266637)));
-        put("5379A", new Port("5379A", "Labuan Amuk", new String[]{"Labuhan", "Lowina", "Singaraja"}, new String[]{"Bali", "Indonesia"}, new LatLng(-8.519105, 115.507468)));
+        put("5381", new Port("5381", "Sanur", new String[]{"Denpasar"}, indonesiaBali, new LatLng(-8.691562, 115.266637)));
+        put("5379A", new Port("5379A", "Labuan Amuk", new String[]{"Labuhan"}, indonesiaBali, new LatLng(-8.519105, 115.507468)));
 
-//        put("3484", new Port("Santa Cruz De Tenerife", new String[]{}, new String[]{"Canary Islands", "Spain"}, new LatLng(28.468765, -16.252410), 0));
-//        put("5383", new Port("Benoa2", new LatLng(-7.75, 118.22)));
-//        put("5384", new Port("Benoa3", new String[]{"Hell"}, new String[]{"Bali", "Indonesia"}, new LatLng(-8.74, 5.21), 2));
-//        put("5385", new Port("Benoa4", new LatLng(-9.75, 112.20)));
-//        put("8955", new Port("Welcome Harbour", new LatLng(65.6849, 128.1044)));
+        String[] indonesiaJava = {"Java", "Indonesia"};
+
+//        put("5358", new Port("5358", "Banyuwangi", null, indonesiaJava, new LatLng(-8.128243, 114.399974), +7));
+//        put("5359", new Port("5359", "Pulau Tabuan", null, indonesiaJava, new LatLng(-8.037211, 114.461060), +7));
+//        put("5360", new Port("5360", "Gosong Karangmas", null, indonesiaJava, new LatLng(-7.676389, 114.433333), +7));
 
         portsSortedByDistance = new ArrayList<>(entrySet());
     }

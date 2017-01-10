@@ -99,7 +99,7 @@ public class TideData {
 
 
     public boolean isEmpty() {
-        return precise.isEmpty() && extremums.isEmpty();
+        return precise.isEmpty() || extremums.isEmpty();
     }
 
 
