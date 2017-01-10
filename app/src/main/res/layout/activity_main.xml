@@ -112,7 +112,7 @@
                 android:id="@+id/etSearch"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:hint="Search..."
+                android:hint="@string/search_for"
                 android:textSize="18dp"
                 android:layout_weight="1"
                 android:paddingTop="3dp"
@@ -328,7 +328,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:textColor="@color/colorPrimary"
                 android:visibility="gone"
-                android:text="Update"
+                android:text="@string/update"
                 android:onClick="btnUpdateClick"
                 />
             </LinearLayout>

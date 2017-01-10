@@ -2,5 +2,15 @@
     <string name="app_name">バリ島の潮</string>
     <string name="title_activity_main">バリ島の潮</string>
     <string name="info">データ <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
-    <string name="title_activity_widget_config">Configure widget</string>
+    <string name="title_activity_widget_config">ウィジェットの設定</string>
+    <string name="time_range">時間範囲</string>
+    <string name="show_name">ショー名</string>
+    <string name="show">ショー</string>
+    <string name="port">ポート</string>
+    <string name="no">いいえ</string>
+    <string name="full">24時間</string>
+    <string name="crop">18時間</string>
+    <string name="choose_port">選び出す</string>
+    <string name="update">更新</string>
+    <string name="search_for">サーチ</string>
 </resources>

@@ -3,4 +3,15 @@
     <string name="title_activity_main">Бали приливы</string>
     <string name="info">данные с сайта <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
     <string name="title_activity_widget_config">Настроить виджет</string>
+
+    <string name="port">Порт</string>
+    <string name="choose_port">Выбрать порт…</string>
+    <string name="time_range">Временной диапазон</string>
+    <string name="full">24 часа</string>
+    <string name="crop">18 часов</string>
+    <string name="show_name">Показывать название</string>
+    <string name="show">показывать</string>
+    <string name="no">нет</string>
+    <string name="update">Обновить</string>
+    <string name="search_for">Поиск…</string>
 </resources>

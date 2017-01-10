@@ -4,6 +4,18 @@
     <string name="title_activity_widget_config">Configure widget</string>
     <string name="info">data from <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="port">Port</string>
+    <string name="choose_port">Choose port…</string>
+
+    <string name="time_range">Time range</string>
+    <string name="full">full (24h)</string>
+    <string name="crop">crop (18h)</string>
+
+    <string name="show_name">Show name</string>
+    <string name="show">show</string>
+    <string name="no">no</string>
+
+    <string name="update">Update</string>
+
+    <string name="search_for">Search…</string>
 </resources>

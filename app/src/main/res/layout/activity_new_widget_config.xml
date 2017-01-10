@@ -85,14 +85,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="0dp"
-            android:text="Port name"/>
+            android:text="@string/port"/>
 
         <EditText
             android:id="@+id/tvPort"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text=""
-            android:hint="Choose port..."
+            android:hint="@string/choose_port"
             android:editable="false"
             android:textSize="18dp"
             android:layout_weight="1"
@@ -151,7 +151,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="Time range"/>
+            android:text="@string/time_range"/>
 
         <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
@@ -161,14 +161,14 @@
             <RadioButton android:id="@+id/rbFull"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="full"
+                android:text="@string/full"
                 android:checked="true"
                 android:paddingRight="20dp"
                 android:onClick="onRadioButtonClicked"/>
             <RadioButton android:id="@+id/rbCrop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="crop"
+                android:text="@string/crop"
                 android:paddingRight="20dp"
                 android:onClick="onRadioButtonClicked"/>
         </RadioGroup>
@@ -177,7 +177,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="20dp"
-            android:text="Show name"/>
+            android:text="@string/show_name"/>
 
         <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
@@ -187,13 +187,13 @@
             <RadioButton android:id="@+id/rbShow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="show"
+                android:text="@string/show"
                 android:paddingRight="20dp"
                 android:onClick="onRadioButtonClicked"/>
             <RadioButton android:id="@+id/rbNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="no"
+                android:text="@string/no"
                 android:checked="true"
                 android:paddingRight="20dp"
                 android:onClick="onRadioButtonClicked"/>

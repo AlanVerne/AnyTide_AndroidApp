@@ -75,7 +75,7 @@ public class TideChartDrawer {
     int smallTextPadding;
 
 
-    float density;
+    public float density;
     int w, h;
     Canvas c;
 

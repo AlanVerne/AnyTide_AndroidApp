@@ -2,5 +2,15 @@
     <string name="app_name">Bali pasang</string>
     <string name="title_activity_main">Bali pasang</string>
     <string name="info">data dari <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
-    <string name="title_activity_widget_config">Configure widget</string>
+    <string name="title_activity_widget_config">Mengkonfigurasi widget</string>
+    <string name="choose_port">Pilih pelabuhan…</string>
+    <string name="crop">18 jam</string>
+    <string name="full">24 jam</string>
+    <string name="no">tidak</string>
+    <string name="port">Pelabuhan</string>
+    <string name="show">menunjukkan</string>
+    <string name="show_name">Nama menunjukkan</string>
+    <string name="time_range">Rentang waktu</string>
+    <string name="update">Memperbarui</string>
+    <string name="search_for">Pencarian…</string>
 </resources>

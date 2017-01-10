@@ -555,18 +555,6 @@ public class MainActivity extends AppCompatActivity {
 
         initWidgets();
 
-//        boolean is24h = sharedPreferences.getBoolean(SPKEY_24H, true);
-//
-//        cb24h.setChecked(is24h);
-//        drawer.set24h(is24h);
-//        cb24h.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                drawer.set24h(isChecked);
-//                updateCharts();
-//                sharedPreferences.edit().putBoolean(SPKEY_24H, isChecked).apply();
-//            }
-//        });
 //        vSpace.setOnGenericMotionListener(new View.OnGenericMotionListener() {
 //            @Override
 //            public boolean onGenericMotion(View v, MotionEvent event) {
@@ -927,10 +915,10 @@ public class MainActivity extends AppCompatActivity {
                 imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, 0, 0, imageViewsHourly[0], selectedPort));
                 i = 1;
             }
-            if (tideData.hasData(Common.getDay(1, selectedPort.getTimeZone()))) {
-                textViews[1].setVisibility(View.VISIBLE);
-                imageViews[1].setVisibility(View.VISIBLE);
-                i = 2;
+            for (int j = 1; j < Math.min(5, tideData.hasDays()); j++) {
+                textViews[j].setVisibility(View.VISIBLE);
+                imageViews[j].setVisibility(View.VISIBLE);
+                i = j+1;
             }
             if (aDrawer != null && aDrawer.getStatus() != AsyncTask.Status.FINISHED) aDrawer.cancel(true);
             TideChartDrawer d = new TideChartDrawer(density, false);
@@ -977,14 +965,16 @@ public class MainActivity extends AppCompatActivity {
         TideData tideData;
 
         public TideChartsAsyncDrawer(int w, int h, TideChartDrawer drawer, TideData tideData) {
+            Log.i(TAG, "TideChartsAsyncDrawer");
             this.w = w;
             this.h = h;
-            this.drawer = drawer;
+            this.drawer = new TideChartDrawer(drawer.density); // drawer;
             this.tideData = tideData;
         }
 
         @Override
         protected Map<Integer, Bitmap> doInBackground(Void... params) {
+            Log.i(TAG, "doInBackground");
             Map<Integer, Bitmap> map = new HashMap<>();
             int i = 1;
             while (tideData.hasData(Common.getDay(i, selectedPort.getTimeZone()))) {
@@ -997,6 +987,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Map<Integer, Bitmap> bitmaps) {
+            Log.i(TAG, "onPostExecute");
             for (Map.Entry<Integer, Bitmap> b : bitmaps.entrySet()) {
                 Integer day = b.getKey();
                 if (day >= N_DAYS) continue;

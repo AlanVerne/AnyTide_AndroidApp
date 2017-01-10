@@ -27,8 +27,11 @@ public class TideData {
     public  long  fetched;
     public  long  fetchedSuccessfully;
 
+    public final String preciseStr;
+    public final String extremumsStr;
+
     private final SortedMap<Long, int[]> precise = new TreeMap<>();
-    private final SortedMap<Long, Integer> extremums = new TreeMap<>();
+    public final SortedMap<Long, Integer> extremums = new TreeMap<>();
 
     public  int   min, max;
 
@@ -37,27 +40,36 @@ public class TideData {
 
 
     public boolean equals(TideData o) {
-        return o!=null && precise.equals(o.precise) && extremums.equals(o.extremums);
+        return o != null && precise.equals(o.precise) && extremums.equals(o.extremums);
     }
 
 
     public TideData(Long fetched) {
         this.fetched = fetched;
         this.fetchedSuccessfully = 0L;
+
+        this.preciseStr = null;
+        this.extremumsStr = null;
     }
-    public TideData(TimeZone timeZone, String precise, String extremums) {
-        this(timeZone, precise, extremums, 0l, 0l);
+    public TideData(TimeZone timeZone, String preciseStr, String extremumsStr) {
+        this(timeZone, preciseStr, extremumsStr, 0l, 0l);
     }
-    public TideData(TimeZone timeZone, String precise, String extremums, Long fetched, Long fetchedSuccessfully) {
+    public TideData(TimeZone timeZone, final String preciseStr, final String extremumsStr, Long fetched, Long fetchedSuccessfully) {
         this.timeZone = timeZone;
 
         this.fetched = fetched;
         this.fetchedSuccessfully = fetchedSuccessfully;
 
-        if (precise != null) {
-            String[] daily = precise.split("\n");
+        this.preciseStr = preciseStr;
+        this.extremumsStr = extremumsStr;
 
-            if (daily.length % 2 == 1) return;
+        if (preciseStr != null) {
+            String[] daily = preciseStr.split("\n");
+
+            if (daily.length % 2 == 1) {
+                Log.i(TAG, "new TideData() | " + "failed to parce preciseStr");
+                return;
+            }
 
             for (int i = 0; i < daily.length; i += 2) {
                 String[] strValues = daily[i + 1].split(" ");
@@ -71,10 +83,13 @@ public class TideData {
                 this.precise.put(Long.valueOf(daily[i]), values);
             }
         }
-        if (extremums != null) {
-            String[] split = extremums.split("\n");
+        if (extremumsStr != null) {
+            String[] split = extremumsStr.split("\n");
 
-            if (split.length % 2 == 1) return;
+            if (split.length % 2 == 1) {
+                Log.i(TAG, "new TideData() | " + "failed to parce extremumsStr");
+                return;
+            }
 
             for (int i = 0; i < split.length; i += 2) {
                 this.extremums.put(Long.valueOf(split[i]), Integer.valueOf(split[i+1]));
@@ -89,6 +104,8 @@ public class TideData {
 
 
     public int hasDays() { // 1 - only today, 7 - 7 days
+        if (timeZone == null) return 0;
+
         Calendar calendar = Common.getCalendarToday(timeZone);
         int day = calendar.get(Calendar.DAY_OF_YEAR);
 
@@ -193,30 +210,32 @@ public class TideData {
     }
 
 
-    public String preciseToString() {
-        if (precise == null || precise.isEmpty()) return null;
-        String r = "";
-        for (Map.Entry<Long, int[]> e : precise.entrySet()) {
-            r += e.getKey() + "\n";
-            for (int i : e.getValue()) {
-                r += i + " ";
-            }
-            r = r.substring(0, r.length()-1) + "\n";
-        }
-        r = r.substring(0, r.length()-1);
-        return r;
-    }
-
-
-    public String extremumsToString() {
-        if (extremums == null || extremums.isEmpty()) return null;
-        String r = "";
-        for (Map.Entry<Long, Integer> e : extremums.entrySet()) {
-            r += e.getKey() + "\n" + e.getValue() + "\n";
-        }
-        r = r.substring(0, r.length()-1);
-        return r;
-    }
+//    public String preciseToString() {
+//        return preciseStr;
+////        if (precise == null || precise.isEmpty()) return null;
+////        String r = "";
+////        for (Map.Entry<Long, int[]> e : precise.entrySet()) {
+////            r += e.getKey() + "\n";
+////            for (int i : e.getValue()) {
+////                r += i + " ";
+////            }
+////            r = r.substring(0, r.length()-1) + "\n";
+////        }
+////        r = r.substring(0, r.length()-1);
+////        return r;
+//    }
+//
+//
+//    public String extremumsToString() {
+//        return extremumsStr;
+////        if (extremums == null || extremums.isEmpty()) return null;
+////        String r = "";
+////        for (Map.Entry<Long, Integer> e : extremums.entrySet()) {
+////            r += e.getKey() + "\n" + e.getValue() + "\n";
+////        }
+////        r = r.substring(0, r.length()-1);
+////        return r;
+//    }
 
 
     public Map<Integer, Integer> getExtremums(long day) {
@@ -238,7 +257,7 @@ public class TideData {
 
     @Override
     public String toString() {
-        return preciseToString();
+        return preciseStr; //preciseToString();
     }
 
 

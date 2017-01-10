@@ -2,5 +2,15 @@
     <string name="app_name">Marée Bali</string>
     <string name="title_activity_main">Marée Bali</string>
     <string name="info">les données de <a href="http://www.tide-forecast.com/locations/Denpasar/tides/latest">tide-forecast</a></string>
-    <string name="title_activity_widget_config">Configure widget</string>
+    <string name="title_activity_widget_config">Configurer le widget</string>
+    <string name="time_range">Intervalle de temps</string>
+    <string name="show_name">Montrer le nom</string>
+    <string name="show">montrer</string>
+    <string name="port">Port</string>
+    <string name="no">non</string>
+    <string name="full">24 heures</string>
+    <string name="crop">18 heures</string>
+    <string name="choose_port">Choisissez le port…</string>
+    <string name="update">Mettre à jour</string>
+    <string name="search_for">Rechercher…</string>
 </resources>

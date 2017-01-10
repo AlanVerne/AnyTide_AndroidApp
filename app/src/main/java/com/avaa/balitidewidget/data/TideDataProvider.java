@@ -67,7 +67,7 @@ public class TideDataProvider {
 
         TideData tideData = portIDToTideData.get(port.id);
         if (tideData != null) {
-            Log.i(TAG, "Current tidedata " + tideData.toString());
+            //Log.i(TAG, "Current tidedata " + tideData.toString());
             tideData.fetched = System.currentTimeMillis();
         }
         else {
@@ -106,7 +106,15 @@ public class TideDataProvider {
     private TideDataProvider(Ports ports, SharedPreferences sharedPreferences) {
         this.ports = ports;
         this.sharedPreferences = sharedPreferences;
-        loadTides();
+        load();
+    }
+
+
+    private void newTideDataFetched(String portID, TideData tideData) {
+        portIDToTideData.put(portID, tideData);
+        save(portID);
+
+        fireUpdated(portID);
     }
 
 
@@ -125,6 +133,8 @@ public class TideDataProvider {
 
 
     private static class FetchTideDataAsyncTask extends AsyncTask<String, Void, TideData> {
+        private String TAG = "FetchTideDataAsyncTask";
+
         private final Runnable runnable;
         private final TideDataProvider tideDataProvider;
         private final Port port;
@@ -138,6 +148,8 @@ public class TideDataProvider {
         }
 
         protected TideData doInBackground(String... addr) {
+            Log.i(TAG, "doInBackground");
+
             URL url;
             BufferedReader reader = null;
 
@@ -159,14 +171,14 @@ public class TideDataProvider {
                     result.write(buffer, 0, length);
                 }
 
-                String[] split = result.toString("UTF-8").split("\n--\n");
+                String[] split = result.toString("ASCII").split("\n--\n"); //"UTF-8").split("\n--\n");
 
 //                Log.i("BTW", split.length+" ");
 //                Log.i("BTW", split[0]);
 //                Log.i("BTW", split[1]);
 
                 long currentTimeMillis = System.currentTimeMillis();
-                return new TideData(port.getTimeZone(), split[0], split[1], currentTimeMillis, currentTimeMillis);
+                return new TideData(port.getTimeZone(), split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
             } catch (Exception e) {
                 Log.i(TAG, "Fetch failed");
                 e.printStackTrace();
@@ -181,52 +193,65 @@ public class TideDataProvider {
             }
             return null;
         }
-
         protected void onPostExecute(TideData tideData) {
-            Log.i(TAG, "onPostExecute for " + port + ", " + (tideData == null ? "null" : "hasDays=" + tideData.hasDays()));
+            Log.i(TAG, "onPostExecute | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
 
             tideDataProvider.fireLoadingStateChanged(port.id, false);
 
             if (tideData == null) return;
             if (tideData.equals(tideDataProvider.portIDToTideData.get(port.id))) return;
 
-            tideDataProvider.portIDToTideData.put(port.id, tideData);
-            tideDataProvider.saveTides();
-
-            tideDataProvider.fireUpdated(port.id);
+            tideDataProvider.newTideDataFetched(port.id, tideData);
 
             if (runnable != null) runnable.run();
         }
     }
 
 
-    private void loadTides() {
+    // --
+
+
+    private void load() {
         Set<String> portIDs = sharedPreferences.getStringSet(SPKEY_SAVED_PORT_IDS, null);
         if (portIDs == null) return;
 
         for (String portID : portIDs) {
-            portIDToTideData.put(portID, new TideData(ports.get(portID).getTimeZone(), sharedPreferences.getString(SPKEY_TIDE_DATA_PRECISE + portID, null), sharedPreferences.getString(SPKEY_TIDE_DATA_EXTREMUMS + portID, null)));
+            String precise   = sharedPreferences.getString(SPKEY_TIDE_DATA_PRECISE   + portID, null);
+            String extremums = sharedPreferences.getString(SPKEY_TIDE_DATA_EXTREMUMS + portID, null);
+            if (precise != null && extremums != null) {
+                TideData tideData = new TideData(ports.get(portID).getTimeZone(), precise, extremums);
+                if (tideData.hasDays() > 0) portIDToTideData.put(portID, tideData);
+            }
         }
-
-        //Log.i(TAG, portIDToTideData.toString());
     }
 
 
-    private void saveTides() {
+    private void save(String id) {
         SharedPreferences.Editor edit = sharedPreferences.edit();
 
-        Map<String, TideData> toSave = new HashMap<>();
-        for (Map.Entry<String, TideData> entry : portIDToTideData.entrySet()) {
-            if (!entry.getValue().isEmpty()) toSave.put(entry.getKey(), entry.getValue());
-        }
+        edit.putStringSet(SPKEY_SAVED_PORT_IDS, portIDToTideData.keySet());
 
-        edit.putStringSet(SPKEY_SAVED_PORT_IDS, toSave.keySet());
-
-        for (Map.Entry<String, TideData> entry : toSave.entrySet()) {
-            edit.putString(SPKEY_TIDE_DATA_PRECISE  + entry.getKey(),  entry.getValue().preciseToString());
-            edit.putString(SPKEY_TIDE_DATA_EXTREMUMS + entry.getKey(), entry.getValue().extremumsToString());
-        }
+        TideData tideData = portIDToTideData.get(id);
+        edit.putString(SPKEY_TIDE_DATA_PRECISE   + id, tideData.preciseStr);
+        edit.putString(SPKEY_TIDE_DATA_EXTREMUMS + id, tideData.extremumsStr);
 
         edit.apply();
     }
+//    private void saveAll() {
+//        SharedPreferences.Editor edit = sharedPreferences.edit();
+//
+//        Map<String, TideData> toSave = new HashMap<>();
+//        for (Map.Entry<String, TideData> entry : portIDToTideData.entrySet()) {
+//            if (!entry.getValue().isEmpty()) toSave.put(entry.getKey(), entry.getValue());
+//        }
+//
+//        edit.putStringSet(SPKEY_SAVED_PORT_IDS, toSave.keySet());
+//
+//        for (Map.Entry<String, TideData> entry : toSave.entrySet()) {
+//            edit.putString(SPKEY_TIDE_DATA_PRECISE  + entry.getKey(),  entry.getValue().preciseToString());
+//            edit.putString(SPKEY_TIDE_DATA_EXTREMUMS + entry.getKey(), entry.getValue().extremumsToString());
+//        }
+//
+//        edit.apply();
+//    }
 }
