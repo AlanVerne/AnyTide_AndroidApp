@@ -6,12 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +26,11 @@ public class TideDataProvider {
 
     public static final Long ONE_DAY = 1000*60*60*24*1L;
 
-    private final SortedMap<String, TideData> portIDToTideData = new TreeMap<>();
-    private final Map<String, FetchTideDataAsyncTask> asyncTasks = new HashMap<>();
+    protected final SortedMap<String, TideData> portIDToTideData = new TreeMap<>();
+    private final Map<String, TideDataRetriever> asyncTasks = new HashMap<>();
 
     private final Ports ports;
     private final SharedPreferences sharedPreferences;
-
 
     public interface TideDataProviderListener {
         void updated(String portID);
@@ -88,10 +81,10 @@ public class TideDataProvider {
             portIDToTideData.put(port.id, new TideData(System.currentTimeMillis()));
         }
 
-        FetchTideDataAsyncTask asyncTask = asyncTasks.get(port.id);
+        TideDataRetriever asyncTask = asyncTasks.get(port.id);
         if (asyncTask == null || asyncTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
             fireLoadingStateChanged(port.id, true);
-            asyncTask = new FetchTideDataAsyncTask(getInstance(), port, widgetsRunnable);
+            asyncTask = new TideDataRetriever(getInstance(), port, widgetsRunnable);
             asyncTasks.put(port.id, asyncTask);
             asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -99,7 +92,7 @@ public class TideDataProvider {
 
 
     public boolean loadingInProgress(String portID) {
-        FetchTideDataAsyncTask asyncTask = asyncTasks.get(portID);
+        TideDataRetriever asyncTask = asyncTasks.get(portID);
         return asyncTask != null && !asyncTask.getStatus().equals(AsyncTask.Status.FINISHED);
     }
 
@@ -114,7 +107,7 @@ public class TideDataProvider {
     }
 
 
-    private void fireLoadingStateChanged(String portID, boolean loading) {
+    void fireLoadingStateChanged(String portID, boolean loading) {
         for (TideDataProviderListener listener : listeners) {
             listener.loadingStateChanged(portID, loading);
         }
@@ -126,84 +119,13 @@ public class TideDataProvider {
     }
 
 
-    private void newDataFetched(String portID, TideData tideData) {
+    void newDataFetched(String portID, TideData tideData) {
+        if (tideData.equals(portIDToTideData.get(portID))) return;
+
         portIDToTideData.put(portID, tideData);
         save(portID);
 
         fireUpdated(portID);
-    }
-
-
-    private static class FetchTideDataAsyncTask extends AsyncTask<String, Void, TideData> {
-        private String TAG = "FetchTideDataAsyncTask";
-
-        private final Runnable runnable;
-        private final TideDataProvider tideDataProvider;
-        private final Port port;
-
-        FetchTideDataAsyncTask(TideDataProvider tideDataProvider, Port port, Runnable runAfter) {
-            Log.i(TAG, "new FetchTideDataAsyncTask() | for " + port);
-
-            this.tideDataProvider = tideDataProvider;
-            this.port = port;
-            this.runnable = runAfter;
-        }
-
-        protected TideData doInBackground(String... addr) {
-            Log.i(TAG, "doInBackground()");
-
-            URL url;
-            BufferedReader reader = null;
-
-            try {
-                url = new URL("http://128.199.252.5/ports/" + port.id + "/predictions");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-                connection.setRequestMethod("GET");
-
-                connection.setReadTimeout(15 * 1000);
-                connection.connect();
-
-                InputStream is = connection.getInputStream();
-
-                ByteArrayOutputStream result = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = is.read(buffer)) != -1) {
-                    result.write(buffer, 0, length);
-                }
-
-                String[] split = result.toString("ASCII").split("\n--\n"); //"UTF-8").split("\n--\n");
-
-                long currentTimeMillis = System.currentTimeMillis();
-                return new TideData(port.getTimeZone(), split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
-            } catch (Exception e) {
-                Log.i(TAG, "doInBackground() | fetch failed");
-                e.printStackTrace();
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        protected void onPostExecute(TideData tideData) {
-            Log.i(TAG, "onPostExecute() | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
-
-            tideDataProvider.fireLoadingStateChanged(port.id, false);
-
-            if (tideData == null) return;
-            if (tideData.equals(tideDataProvider.portIDToTideData.get(port.id))) return;
-
-            tideDataProvider.newDataFetched(port.id, tideData);
-
-            if (runnable != null) runnable.run();
-        }
     }
 
 

@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AnyTide.iml" filepath="$PROJECT_DIR$/AnyTide.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/tidedatalib/tidedatalib.iml" filepath="$PROJECT_DIR$/tidedatalib/tidedatalib.iml" />
     </modules>
   </component>
 </project>

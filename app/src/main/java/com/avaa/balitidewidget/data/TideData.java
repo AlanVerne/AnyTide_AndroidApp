@@ -22,10 +22,10 @@ import java.util.TreeMap;
 public class TideData {
     private static final String TAG = "TideData";
 
-    public  TimeZone timeZone = null;
+    public final TimeZone timeZone;
 
-    public  long  fetched;
-    public  long  fetchedSuccessfully;
+    public long  fetched;
+    public long  fetchedSuccessfully;
 
     public final String preciseStr;
     public final String extremumsStr;
@@ -45,6 +45,8 @@ public class TideData {
 
 
     public TideData(Long fetched) {
+        this.timeZone = null;
+
         this.fetched = fetched;
         this.fetchedSuccessfully = 0L;
 
@@ -255,13 +257,13 @@ public class TideData {
     }
 
 
-    @Override
-    public String toString() {
-        return preciseStr; //preciseToString();
+    public int[] getPrecise(long day) {
+        return precise.get(day);
     }
 
 
-    public int[] getPrecise(long day) {
-        return precise.get(day);
+    @Override
+    public String toString() {
+        return preciseStr;
     }
 }
