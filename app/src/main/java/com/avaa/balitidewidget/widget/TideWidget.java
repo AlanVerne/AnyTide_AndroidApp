@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class TideWidget extends AppWidgetProvider {
+    private static final String TAG = "TideWidget";
+
     public static final String ACTION_UPDATE_ALL     = "com.avaa.balitidewidget.action.updateall";
     public static final String ACTION_WIDGET_CLICKED = "com.avaa.balitidewidget.action.widgetclicked";
     public static final String EXTRA_WIDGET_ID       = "com.avaa.balitidewidget.extra.widgetid";
@@ -41,6 +43,7 @@ public class TideWidget extends AppWidgetProvider {
     public static final String SPKEY_SHOW_NAME       = "ShowName";
 
     public static final int    DOUBLE_CLICK_MILLIS   = 400;
+
 
     private SharedPreferences sharedPreferences = null;
     private TideChartDrawer   tideChartDrawer = null;
@@ -100,6 +103,8 @@ public class TideWidget extends AppWidgetProvider {
         tideChartDrawer.set24h(!crop(appWidgetId));
         tideChartDrawer.name = showName(appWidgetId) ? port.getName() : null;
         Bitmap bitmap = tideChartDrawer.draw(widgetSize.x, widgetSize.y, tideData, showTomorrow?1:0, showTomorrow ? 1 : 0, hourly, ports.get(portID(appWidgetId)));
+
+        Log.i(TAG, "updateWidget() | " + bitmap.getWidth());
 
         Intent intent = new Intent(context, getClass());
         intent.setAction(ACTION_WIDGET_CLICKED);

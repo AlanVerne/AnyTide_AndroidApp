@@ -197,7 +197,7 @@ public class TideData {
         int[] values = precise.get(day);
         if (values == null) return null;
 
-        Calendar calendar = new GregorianCalendar();
+        Calendar calendar = GregorianCalendar.getInstance(timeZone);
         float now = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) / 60.0f;
         now /= 10;
 

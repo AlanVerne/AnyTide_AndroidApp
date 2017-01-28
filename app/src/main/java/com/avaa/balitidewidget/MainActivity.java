@@ -77,6 +77,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -824,7 +825,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateDifferentTimezone() {
         TextView tvDifferentTimeZoneLabel = (TextView)findViewById(R.id.tvDifferentTimeZoneLabel);
         LinearLayout llDifferentTimeZoneLabel = (LinearLayout)findViewById(R.id.llDifferentTimeZoneLabel);
-        if (selectedPort.utc != 8) {
+        if (selectedPort.utc != TimeZone.getDefault().getOffset(System.currentTimeMillis())) {
             tvDifferentTimeZoneLabel.setText(getString(R.string.different_time_zone) + selectedPort.utc);
             llDifferentTimeZoneLabel.setVisibility(View.VISIBLE);
         }
@@ -884,7 +885,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateDates() {
-        Calendar calendar = new GregorianCalendar();
+        Calendar calendar = new GregorianCalendar(tideData.timeZone);
         int today = calendar.get(Calendar.DAY_OF_YEAR);
         shownDay = today;
 

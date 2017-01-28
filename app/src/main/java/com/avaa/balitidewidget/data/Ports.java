@@ -1,23 +1,9 @@
 package com.avaa.balitidewidget.data;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.util.SortedListAdapterCallback;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-
-import com.avaa.balitidewidget.R;
-import com.avaa.balitidewidget.views.PortListViewItem;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.VisibleRegion;
+import android.location.Location;import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,9 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.TimeZone;
 
 /**
  * Created by Alan on 25 Oct 2016.
@@ -62,21 +46,39 @@ public class Ports extends LinkedHashMap<String, Port> {
 
 
     public Ports() {
-        String[] indonesiaBali = {"Bali", "Indonesia"};
+        String[] portugal = {"Portugal"};
+        put(new Port("1740", "Cascais", null, portugal, new LatLng(38.691915, -9.419067), TimeZone.getTimeZone("Portugal").getOffset(System.currentTimeMillis())));
 
-        put("5382", new Port("5382", "Benoa", new String[]{"Denpasar", "Old", "Batu"}, indonesiaBali, new LatLng(-8.746247, 115.211678)));
-        put("5379", new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, indonesiaBali, new LatLng(-8.164220, 115.019817)));
+        String indonesia = "Indonesia";
 
-        put("5381", new Port("5381", "Sanur", new String[]{"Denpasar"}, indonesiaBali, new LatLng(-8.691562, 115.266637)));
-        put("5379A", new Port("5379A", "Labuan Amuk", new String[]{"Labuhan"}, indonesiaBali, new LatLng(-8.519105, 115.507468)));
+        String[] indonesiaJava = {"Java", indonesia};
+        put(new Port("5358", "Banyuwangi", null, indonesiaJava, new LatLng(-8.128243, 114.399974), +7));
+        put(new Port("5359", "Pulau Tabuan", null, indonesiaJava, new LatLng(-8.037211, 114.461060), +7));
+        put(new Port("5360", "Gosong Karangmas", null, indonesiaJava, new LatLng(-7.676389, 114.433333), +7));
 
-        String[] indonesiaJava = {"Java", "Indonesia"};
+        String[] indonesiaBali = {"Bali", indonesia};
+        put(new Port("5382", "Benoa", new String[]{"Denpasar", "Old", "Batu"}, indonesiaBali, new LatLng(-8.746247, 115.211678), +8));
+        put(new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, indonesiaBali, new LatLng(-8.164220, 115.019817), +8));
+        put(new Port("5381", "Sanur", new String[]{"Denpasar"}, indonesiaBali, new LatLng(-8.691562, 115.266637), +8));
+        put(new Port("5379A", "Labuan Amuk", new String[]{"Labuhan"}, indonesiaBali, new LatLng(-8.519105, 115.507468), +8));
 
-//        put("5358", new Port("5358", "Banyuwangi", null, indonesiaJava, new LatLng(-8.128243, 114.399974), +7));
-//        put("5359", new Port("5359", "Pulau Tabuan", null, indonesiaJava, new LatLng(-8.037211, 114.461060), +7));
-//        put("5360", new Port("5360", "Gosong Karangmas", null, indonesiaJava, new LatLng(-7.676389, 114.433333), +7));
+        String[] indonesiaLombok = {"Lombok", indonesia};
+        put(new Port("5386", "Tanjung Pandanan", null, indonesiaLombok, new LatLng(-8.726043, 115.858193), +8));
+        put(new Port("5385", "Teluk Labuhantereng", null, indonesiaLombok, new LatLng(-8.742473, 116.054388), +8));
+        put(new Port("5384", "Ampenan", null, indonesiaLombok, new LatLng(-8.565419, 116.072186), +8));
+
+        String[] indonesiaSumbawa = {"Sumbawa", indonesia};
+        put(new Port("5395", "Bima", null, indonesiaSumbawa, new LatLng(-8.447375, 118.712837), +8));
+        put(new Port("5397", "Teluk Waworada", null, indonesiaSumbawa, new LatLng(-8.706588, 118.800877), +8));
+        put(new Port("5396", "Teluk Sape", null, indonesiaSumbawa, new LatLng(-8.571800, 119.014635), +8));
+        put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
 
         portsSortedByDistance = new ArrayList<>(entrySet());
+    }
+
+
+    private void put(Port p) {
+        put(p.id, p);
     }
 
 

@@ -264,8 +264,8 @@ public class TideChartDrawer {
         DrawLabels(tomorrow == 1);
         if (tomorrow == 0) {
             Integer nowTide = tideData.getNow(day);
-            if (nowTide == null) DrawNowLines(paint);
-            else DrawNowLines(nowTide, paint);
+            if (nowTide == null) DrawNowLines(port.getTimeZone(), paint);
+            else DrawNowLines(nowTide, port.getTimeZone(), paint);
         }
 
         int widthInMinutes = (eH-sH)*60;
@@ -645,8 +645,8 @@ public class TideChartDrawer {
     }
 
 
-    private void DrawNowLines(int tide, Paint paint) {
-        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("Singapore"));
+    private void DrawNowLines(int tide, TimeZone timeZone, Paint paint) {
+        Calendar calendar = new GregorianCalendar(timeZone);
         int now  = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
         int nowX = w * (now-sH*60) / (eH-sH)/60; // w * now / MINUTES_IN_DAY;
 
@@ -659,19 +659,19 @@ public class TideChartDrawer {
         if (nowX - r.width() - d*3 < 0) {
             paint.setTextAlign(Paint.Align.LEFT);
             c.drawText(String.valueOf(tide / 100.0), nowX + d, r.height() + d, paint);
-            DrawNowLines(paint, r.height()+d*2);
+            DrawNowLines(timeZone, paint, r.height()+d*2);
         }
         else {
             paint.setTextAlign(Paint.Align.RIGHT);
             c.drawText(String.valueOf(tide / 100.0), nowX - d, r.height() + d, paint);
-            DrawNowLines(paint, 0);
+            DrawNowLines(timeZone, paint, 0);
         }
     }
-    private void DrawNowLines(Paint paint) {
-        DrawNowLines(paint, 0);
+    private void DrawNowLines(TimeZone timeZone, Paint paint) {
+        DrawNowLines(timeZone, paint, 0);
     }
-    private void DrawNowLines(Paint paint, int y) {
-        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("Singapore"));
+    private void DrawNowLines(TimeZone timeZone, Paint paint, int y) {
+        Calendar calendar = new GregorianCalendar(timeZone);
         int now = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
         int nowX = w * (now-sH*60) / (eH-sH) / 60; // w * now / MINUTES_IN_DAY;
         if (nowX < 0 || nowX > w) return;
