@@ -99,8 +99,11 @@ public class Port {
     }
 
 
+    public static String getTimeZoneString(int offset) {
+        return "UTC" + (offset >= 0 ? "+" : "") + String.valueOf(offset);
+    }
     public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone("GMT" + (utc >= 0 ? "+" : "-") + String.valueOf(utc));
+        return TimeZone.getTimeZone("GMT" + (utc >= 0 ? "+" : "") + String.valueOf(utc));
     }
 
 

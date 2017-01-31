@@ -15,5 +15,5 @@
     <string name="update">Обновить</string>
     <string name="search_for">Поиск…</string>
     <string name="no_data">Нет данных</string>
-    <string name="different_time_zone">Другой часовой пояс: UTC+</string>
+    <string name="different_time_zone">Другой часовой пояс:</string>
 </resources>

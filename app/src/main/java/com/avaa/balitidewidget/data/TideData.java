@@ -101,12 +101,12 @@ public class TideData {
 
 
     public boolean isEmpty() {
-        return precise.isEmpty() || extremums.isEmpty();
+        return precise.isEmpty() || extremums.isEmpty() || timeZone == null;
     }
 
 
     public int hasDays() { // 1 - only today, 7 - 7 days
-        if (timeZone == null) return 0;
+        if (timeZone == null || isEmpty()) return 0;
 
         Calendar calendar = Common.getCalendarToday(timeZone);
         int day = calendar.get(Calendar.DAY_OF_YEAR);
@@ -195,7 +195,7 @@ public class TideData {
     }
     public Integer getNow(long day) {
         int[] values = precise.get(day);
-        if (values == null) return null;
+        if (values == null || timeZone == null) return null;
 
         Calendar calendar = GregorianCalendar.getInstance(timeZone);
         float now = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) / 60.0f;
@@ -252,7 +252,8 @@ public class TideData {
     }
 
 
-    public boolean hasData(long day) {
+    public boolean
+    hasData(long day) {
         return precise.containsKey(day);
     }
 

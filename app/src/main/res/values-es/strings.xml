@@ -14,5 +14,5 @@
     <string name="update">Actualizar</string>
     <string name="search_for">Buscar…</string>
     <string name="no_data">Sin datos</string>
-    <string name="different_time_zone">Zona horaria diferente: UTC+</string>
+    <string name="different_time_zone">Zona horaria diferente:</string>
 </resources>

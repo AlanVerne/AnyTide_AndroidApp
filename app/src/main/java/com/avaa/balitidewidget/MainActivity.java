@@ -81,6 +81,8 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.avaa.balitidewidget.data.Port.getTimeZoneString;
+
 public class MainActivity extends AppCompatActivity {
     public static final String SPKEY_24H = "24h";
     public static final String SPKEY_LAST_PORT_ID = "LastPortID";
@@ -97,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final String todayStr;
     private final String tomorrowStr;
+
+    private TextView tvNoData;
 
     private final ImageView[] imageViews = new ImageView[N_DAYS];
     private final boolean[] imageViewsHourly = new boolean[N_DAYS];
@@ -266,10 +270,10 @@ public class MainActivity extends AppCompatActivity {
             chartWidth = svScroll.getWidth();
             chartHeight = svScroll.getHeight();
 
-            Log.d("DISPLAY", chartWidth + " x " + chartHeight);
+            //Log.d("DISPLAY", chartWidth + " x " + chartHeight);
 
             if (chartWidth > chartHeight) chartHeight = chartHeight - findViewById(R.id.textView1).getHeight();
-            else chartHeight = (int) Math.round(chartWidth * 0.75);
+            else chartHeight = (int)Math.round(chartWidth * 0.75);
 
             tideLoadingIndicator.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
             findViewById(R.id.tvNoData).setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight - (int) (80 * density)));
@@ -358,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
         etSearch = (ExtendedEditText) findViewById(R.id.etSearch);
         tvPortTitle = (TextView) findViewById(R.id.tvTitle);
         tideLoadingIndicator = (TideLoadingIndicator) findViewById(R.id.tideLoadingIndicator);
+        tvNoData = (TextView) findViewById(R.id.tvNoData);
     }
 
 
@@ -825,8 +830,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateDifferentTimezone() {
         TextView tvDifferentTimeZoneLabel = (TextView)findViewById(R.id.tvDifferentTimeZoneLabel);
         LinearLayout llDifferentTimeZoneLabel = (LinearLayout)findViewById(R.id.llDifferentTimeZoneLabel);
-        if (selectedPort.utc != TimeZone.getDefault().getOffset(System.currentTimeMillis())) {
-            tvDifferentTimeZoneLabel.setText(getString(R.string.different_time_zone) + selectedPort.utc);
+        if (selectedPort.utc*60*60*1000 != TimeZone.getDefault().getOffset(System.currentTimeMillis())) {
+            tvDifferentTimeZoneLabel.setText(getString(R.string.different_time_zone) + " " + getTimeZoneString(selectedPort.utc)); // + " your: " + getTimeZoneString(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / (60*60*1000)));
             llDifferentTimeZoneLabel.setVisibility(View.VISIBLE);
         }
         else {
@@ -885,7 +890,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateDates() {
-        Calendar calendar = new GregorianCalendar(tideData.timeZone);
+        Calendar calendar = new GregorianCalendar(selectedPort.getTimeZone());
         int today = calendar.get(Calendar.DAY_OF_YEAR);
         shownDay = today;
 
@@ -909,9 +914,9 @@ public class MainActivity extends AppCompatActivity {
         //setTideLoadingInProgress(true);
 
         int i = 0;
-        if (tideData != null) {
-            if (tideData.hasData(Common.getDay(0, selectedPort.getTimeZone()))) {
-                findViewById(R.id.tvNoData).setVisibility(View.GONE);
+        if (tideData != null && !tideData.isEmpty()) {
+            if (tideData.hasDays() > 0) {
+                tvNoData.setVisibility(View.GONE);
                 textViews[0].setVisibility(View.VISIBLE);
                 imageViews[0].setVisibility(View.VISIBLE);
                 imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, 0, 0, imageViewsHourly[0], selectedPort));
@@ -935,16 +940,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setTideLoadingInProgress(boolean b) {
-        boolean hasTodayData = tideData != null && tideData.hasData(Common.getDay(0, selectedPort.getTimeZone()));
+        boolean hasTodayData = tideData != null && tideData.hasDays() > 0;
 
         tideLoadingIndicator.setVisibility(b ? View.VISIBLE : View.GONE);
 
         if (b) {
             tideLoadingIndicator.setLayoutParams(new LinearLayout.LayoutParams(llScroll.getWidth(), hasTodayData ? (int)(80*density) : chartHeight));
-            findViewById(R.id.tvNoData).setVisibility(View.GONE);
+            tvNoData.setVisibility(View.GONE);
         }
         else {
-            findViewById(R.id.tvNoData).setVisibility(hasTodayData ? View.GONE : View.VISIBLE);
+            tvNoData.setVisibility(hasTodayData ? View.GONE : View.VISIBLE);
         }
 
         findViewById(R.id.btnUpdate).setVisibility(b ? View.GONE : View.VISIBLE);
@@ -979,7 +984,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "doInBackground");
             Map<Integer, Bitmap> map = new HashMap<>();
             int i = 1;
-            while (tideData.hasData(Common.getDay(i, selectedPort.getTimeZone()))) {
+            while (tideData.hasData(Common.getDay(i, tideData.timeZone))) {
                 if (i == 2) h = (int)(h*0.66);
                 map.put(i, drawer.draw(w, h, tideData, i, -1, true, selectedPort));
                 ++i;
