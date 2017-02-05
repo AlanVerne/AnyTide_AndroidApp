@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by Alan on 6 Nov 2016.
  */
 
-public class PortsListViewAdapter extends ArrayAdapter<Map.Entry<String, Port>> {
+public class PortsListViewAdapter extends ArrayAdapter<Port> {
     public PortsListViewAdapter(Context context, int resource) {
         super(context, resource);
     }
@@ -22,7 +22,7 @@ public class PortsListViewAdapter extends ArrayAdapter<Map.Entry<String, Port>> 
     public View getView(int position, View convertView, ViewGroup parent) {
         PortListViewItem view = (PortListViewItem)convertView;
         if (view == null) view = new PortListViewItem(getContext(), null);
-        view.setPort(getItem(position).getValue());
+        view.setPort(getItem(position));
         return view;
     }
 }

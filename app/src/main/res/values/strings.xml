@@ -22,4 +22,6 @@
     <string name="no_data">No data</string>
 
     <string name="different_time_zone">Different timezone:</string>
+
+    <string name="no_results" translatable="false">No results matching request</string>
 </resources>

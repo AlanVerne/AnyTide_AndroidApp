@@ -1,8 +1,18 @@
 package com.avaa.balitidewidget.data;
 
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;import com.google.android.gms.maps.model.LatLng;
+import android.location.Location;
+import android.util.Log;
+import android.util.SparseArray;
 
+import com.avaa.balitidewidget.R;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,13 +29,15 @@ import java.util.TimeZone;
  */
 
 public class Ports extends LinkedHashMap<String, Port> {
+    private static final String TAG = "Ports";
+
     private static final String SPKEY_FAVORITE_PORTS = "FavoritePorts";
     private static final int SEARCH_RESULT_MAX_N = 50;
 
-    private static final Comparator<Entry<String, Port>> portsComparatorByDistance = new Comparator<Entry<String, Port>>() {
+    private static final Comparator<Port> portsComparatorByDistance = new Comparator<Port>() {
         @Override
-        public int compare(Entry<String, Port> lhs, Entry<String, Port> rhs) {
-            return (int)(lhs.getValue().distance - rhs.getValue().distance);
+        public int compare(Port lhs, Port rhs) {
+            return (int)(lhs.distance - rhs.distance);
         }
     };
 
@@ -40,12 +52,12 @@ public class Ports extends LinkedHashMap<String, Port> {
     }
 
     private boolean portsAreSortedByDistance = false;
-    private final List<Entry<String, Port>> portsSortedByDistance;
+    private final List<Port> portsSortedByDistance;
 
     private Location myLocation = null;
 
 
-    public Ports() {
+    public Ports(Context context) {
         String[] portugal = {"Portugal"};
         put(new Port("1740", "Cascais", null, portugal, new LatLng(38.691915, -9.419067), TimeZone.getTimeZone("Portugal").getOffset(System.currentTimeMillis())));
 
@@ -73,12 +85,28 @@ public class Ports extends LinkedHashMap<String, Port> {
         put(new Port("5396", "Teluk Sape", null, indonesiaSumbawa, new LatLng(-8.571800, 119.014635), +8));
         put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
 
-        portsSortedByDistance = new ArrayList<>(entrySet());
+        if (context != null) {
+            InputStream inputStream = context.getResources().openRawResource(R.raw.ports);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+            try {
+                String line = bufferedReader.readLine();
+                while (line != null) {
+                    String[] split = line.split(",");
+                    if (split.length < 3) continue;
+                    put(new Port(split[0], split[1], null, new String[]{split[2]}, new LatLng(-80.601699, 19.517401), +8));
+                    line = bufferedReader.readLine();
+                }
+            } catch (IOException ignored) {
+            }
+        }
+
+        portsSortedByDistance = new ArrayList<>(values());
     }
 
 
     private void put(Port p) {
-        put(p.id, p);
+        if (!containsKey(p.id)) put(p.id, p);
     }
 
 
@@ -103,52 +131,106 @@ public class Ports extends LinkedHashMap<String, Port> {
         return portsAreSortedByDistance;
     }
 
-    public Entry<String, Port> searchNearestFavorite() {
-        for (Entry<String, Port> entry : portsSortedByDistance) {
-            if (entry.getValue().favorite) return entry;
+    public Port searchNearestFavorite() {
+        for (Port entry : portsSortedByDistance) {
+            if (entry.favorite) return entry;
         }
         return null;
     }
-    public Entry<String, Port> searchNearestNotFavorite() {
-        for (Entry<String, Port> entry : portsSortedByDistance) {
-            if (!entry.getValue().favorite) return entry;
+    public Port searchNearestNotFavorite() {
+        for (Port entry : portsSortedByDistance) {
+            if (!entry.favorite) return entry;
         }
         return null;
     }
-    public List<Entry<String, Port>> search() {
-        List<Entry<String, Port>> res = new ArrayList<>(SEARCH_RESULT_MAX_N);
+    public List<Port> search() {
+        List<Port> res = new ArrayList<>(SEARCH_RESULT_MAX_N);
 
-        for (Entry<String, Port> entry : portsSortedByDistance) {
-            if (entry.getValue().favorite) {
-                res.add(new PortEntry(entry));
+        for (Port entry : portsSortedByDistance) {
+            if (entry.favorite) {
+                res.add(entry);
                 if (res.size() > SEARCH_RESULT_MAX_N) return res;
             }
         }
-        for (Entry<String, Port> entry : portsSortedByDistance) {
-            if (!entry.getValue().favorite) {
-                res.add(new PortEntry(entry));
+        for (Port entry : portsSortedByDistance) {
+            if (!entry.favorite) {
+                res.add(entry);
                 if (res.size() > SEARCH_RESULT_MAX_N) return res;
             }
         }
 
         return res;
     }
-    public List<Entry<String, Port>> search(String s) {
+    public List<Port> search(String s) {
         if (s == null || s.isEmpty()) return search();
 
-        Map<Integer, List<Entry<String, Port>>> r = new HashMap<>();
-        for (int i = 1; i <= 6; ++i) r.put(i, new ArrayList<Entry<String, Port>>());
+        if (s.indexOf(' ') != -1 || s.indexOf(',') != -1 || s.indexOf(';') != -1) {
+            String[] split = s.split("[ ,;]");
+            return search(split);
+        }
+
+        Map<Integer, List<Port>> r = new HashMap<>();
+        for (int i = 1; i <= 6; ++i) r.put(i, new ArrayList<Port>());
 
         s = s.length() > 1 ? s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase() : s.toUpperCase();
 
-        for (Entry<String, Port> entry : portsSortedByDistance) {
-            int check = entry.getValue().check(s);
-            if (check > 0) r.get(check).add(new PortEntry(entry));
+        for (Port entry : portsSortedByDistance) {
+            int check = entry.check(s);
+            if (check > 0) r.get(check).add(entry);
         }
 
-        List<Entry<String, Port>> lr = new ArrayList<>(SEARCH_RESULT_MAX_N);
+        List<Port> lr = new ArrayList<>(SEARCH_RESULT_MAX_N);
         for (int i = 6; i > 0; --i) {
-            List<Entry<String, Port>> entries = r.get(i);
+            List<Port> entries = r.get(i);
+            if (lr.size() + entries.size() > SEARCH_RESULT_MAX_N) {
+                for (int j = 0; j < entries.size(); j++) {
+                    lr.add(entries.get(j));
+                }
+            }
+            else lr.addAll(entries);
+        }
+        return lr;
+    }
+    public List<Port> search(final String[] s) {
+        if (s == null) return search();
+
+        Log.i(TAG, "search(l="+s.length+", s[0]="+s[0]+")");
+
+        for (int i = 0; i < s.length; i++) {
+            s[i] = s[i].length() > 1 ? s[i].substring(0, 1).toUpperCase() + s[i].substring(1).toLowerCase() : s[i].toUpperCase();
+        }
+
+//        Map<Integer, List<Port>> r = new HashMap<>();
+//        for (int j = 0; j < s.length; j++) for (int i = 1; i <= 6; ++i) r.put(i+5*(j+1), new ArrayList<Port>());
+        int ss = (s.length)*11+1;
+        ArrayList<Port>[] r = (ArrayList<Port>[])new ArrayList[ss];
+        for (int i = 0; i < ss; i++) {
+            r[i] = new ArrayList<>();
+        }
+
+        int check = 0, c;
+        for (Port port : portsSortedByDistance) {
+            for (String si : s) {
+                c = port.check(si);
+                if (c > 0) check += 5 + c;
+                else {
+                    check = 0;
+                    break;
+                }
+            }
+            if (check > 0) {
+                //if (!r.containsKey(check)) r.put(check, new ArrayList<Port>());
+                r[check].add(port);
+                //Log.i(TAG, "    " + check + " - " + port.getName());
+                check = 0;
+            }
+        }
+
+        List<Port> lr = new ArrayList<>(SEARCH_RESULT_MAX_N);
+        for (int k = s.length; k > 0; --k)
+        for (int i = 6; i > 0; --i) {
+            List<Port> entries = r[i+k*5];
+            if (entries == null) continue;
             if (lr.size() + entries.size() > SEARCH_RESULT_MAX_N) {
                 for (int j = 0; j < entries.size(); j++) {
                     lr.add(entries.get(j));

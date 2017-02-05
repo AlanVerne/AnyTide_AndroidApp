@@ -215,7 +215,7 @@ public class TideWidget extends AppWidgetProvider {
             tideChartDrawer.context = context;
         }
         if (sharedPreferences == null) sharedPreferences = context.getSharedPreferences(Common.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        if (ports == null) ports = new Ports();
+        if (ports == null) ports = new Ports(context);
         if (tideDataProvider == null) tideDataProvider = TideDataProvider.getInstance(ports, sharedPreferences);
     }
 

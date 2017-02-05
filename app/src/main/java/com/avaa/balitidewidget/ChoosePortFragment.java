@@ -37,7 +37,7 @@ import java.util.Map;
 public class ChoosePortFragment extends Fragment {
     private static final int FL_CL_PERMISSIONS_REQUEST = 123;
 
-    private static final Ports PORTS = new Ports();
+    private static final Ports PORTS = new Ports(null);
 
     private ChoosePortFragmentListener listener;
 
@@ -229,14 +229,14 @@ public class ChoosePortFragment extends Fragment {
     }
 
 
-    public Map.Entry<String, Port> getBestPort() {
+    public Port getBestPort() {
         updateMyLocation();
 
-        Map.Entry<String, Port> nearestFavorite = PORTS.searchNearestFavorite();
-        if (nearestFavorite != null && nearestFavorite.getValue().distance < 50000) return nearestFavorite;
+        Port nearestFavorite = PORTS.searchNearestFavorite();
+        if (nearestFavorite != null && nearestFavorite.distance < 50000) return nearestFavorite;
         else if (PORTS.portsAreSortedByDistance()) {
-            Map.Entry<String, Port> nearestNotFavorite = PORTS.searchNearestNotFavorite();
-            if (nearestNotFavorite != null && nearestNotFavorite.getValue().distance < 25000) return nearestNotFavorite;
+            Port nearestNotFavorite = PORTS.searchNearestNotFavorite();
+            if (nearestNotFavorite != null && nearestNotFavorite.distance < 25000) return nearestNotFavorite;
         }
 
         return null;
@@ -244,7 +244,7 @@ public class ChoosePortFragment extends Fragment {
 
 
     public interface ChoosePortFragmentListener {
-        void onPortSelected(Map.Entry<String, Port> port);
+        void onPortSelected(Port port);
     }
 
 

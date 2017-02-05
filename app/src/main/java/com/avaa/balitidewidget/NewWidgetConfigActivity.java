@@ -77,7 +77,7 @@ public class NewWidgetConfigActivity extends AppCompatActivity implements Choose
 
 
     @Override
-    public void onPortSelected(Map.Entry<String, Port> port) {
+    public void onPortSelected(Port port) {
         findViewById(R.id.flChoosePort).setVisibility(View.GONE);
 
         if (port == null) {
@@ -85,8 +85,8 @@ public class NewWidgetConfigActivity extends AppCompatActivity implements Choose
         }
         else {
             findViewById(R.id.btnOk).setVisibility(View.VISIBLE);
-            ((EditText)findViewById(R.id.tvPort)).setText(port.getValue().getName());
-            selectedPortID = port.getKey();
+            ((EditText)findViewById(R.id.tvPort)).setText(port.getName());
+            selectedPortID = port.id;
         }
     }
 

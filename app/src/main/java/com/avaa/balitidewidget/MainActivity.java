@@ -29,9 +29,11 @@ import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String D_MMMM_EEEE = "d MMMM, EEEE";
     private static final String SPACE = "    ";
     private static final int N_DAYS = 5;
-    private static final Ports PORTS = new Ports();
+    private static Ports PORTS = new Ports(null);
     private static final float ZOOM_IN = 10f;
     private static final float ZOOM_OUT = 8.5f;
     private static final int FL_CL_PERMISSIONS_REQUEST = 123;
@@ -171,9 +173,14 @@ public class MainActivity extends AppCompatActivity {
                     if (googleMap.getCameraPosition().zoom > 5) {
                         LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
 
+                        int max = 20;
                         for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
                             if (bounds.contains(entry.getValue().position) || entry.getValue().favorite) {
-                                showMarker(entry.getValue(), entry.getKey());
+                                if (max > 0 || entry.getValue().favorite) {
+                                    max--;
+                                    showMarker(entry.getValue(), entry.getKey());
+                                }
+                                else hideMarker(entry.getValue());
                             } else {
                                 hideMarker(entry.getValue());
                             }
@@ -276,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
             else chartHeight = (int)Math.round(chartWidth * 0.75);
 
             tideLoadingIndicator.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
-            findViewById(R.id.tvNoData).setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight - (int) (80 * density)));
+            findViewById(R.id.tvNoData).setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight - (int)(80 * density)));
 
             imageViews[0].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
             imageViews[1].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
@@ -308,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
     private void initVariablesAndProviders() {
         sharedPreferences = getSharedPreferences(Common.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
+        PORTS = new Ports(getApplicationContext());
         PORTS.load(sharedPreferences);
 
         DistanceUnits.init();
@@ -397,8 +405,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         llSearchScreen.setVisibility(View.GONE);
-                        Map.Entry<String, Port> item = lvSearchResultsAdapter.getItem(position); // lvSearchResults.getItemAtPosition(position);
-                        setSelectedPort(item.getKey());
+                        Port item = lvSearchResultsAdapter.getItem(position); // lvSearchResults.getItemAtPosition(position);
+                        setSelectedPort(item.id);
                     }
                 }, 100);
             }
@@ -457,6 +465,19 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        ViewGroup parentGroup = (ViewGroup)lvSearchResults.getParent();
+
+        TextView tvNoResults = new TextView(parentGroup.getContext());
+        tvNoResults.setText(R.string.no_results);
+        tvNoResults.setGravity(Gravity.CENTER);
+        tvNoResults.setTextSize(14);
+        tvNoResults.setTextColor(0x66000000);
+        tvNoResults.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(140*density)));
+
+        parentGroup.addView(tvNoResults);
+
+        lvSearchResults.setEmptyView(tvNoResults);
     }
 
 
@@ -488,16 +509,16 @@ public class MainActivity extends AppCompatActivity {
         if (portID == null) {
             Location myLocation = updateMyLocation();
             if (myLocation != null) {
-                Map.Entry<String, Port> nearestFavorite = PORTS.searchNearestFavorite();
-                if (nearestFavorite != null && nearestFavorite.getValue().distance < 50000) portID = nearestFavorite.getKey();
+                Port nearestFavorite = PORTS.searchNearestFavorite();
+                if (nearestFavorite != null && nearestFavorite.distance < 50000) portID = nearestFavorite.id;
                 else {
-                    Map.Entry<String, Port> nearestNotFavorite = PORTS.searchNearestNotFavorite();
-                    if (nearestNotFavorite != null && nearestNotFavorite.getValue().distance < 25000) {
-                        portID = nearestNotFavorite.getKey();
+                    Port nearestNotFavorite = PORTS.searchNearestNotFavorite();
+                    if (nearestNotFavorite != null && nearestNotFavorite.distance < 25000) {
+                        portID = nearestNotFavorite.id;
                         if (nearestFavorite == null) {
                             boolean b = sharedPreferences.getBoolean(SPKEY_EVER_FAVORITED, false);
                             if (!b) {
-                                nearestNotFavorite.getValue().favorite = true;
+                                nearestNotFavorite.favorite = true;
                                 sharedPreferences.edit().putBoolean(SPKEY_EVER_FAVORITED, true).apply();
                             }
                         }
@@ -546,6 +567,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -637,6 +659,7 @@ public class MainActivity extends AppCompatActivity {
         setIntent(intent);
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
@@ -672,6 +695,7 @@ public class MainActivity extends AppCompatActivity {
         }, 100, 1000 * 60 * 5);
     }
 
+
     @Override
     public void onPause() {
         super.onPause();
@@ -683,6 +707,7 @@ public class MainActivity extends AppCompatActivity {
         PORTS.save(sharedPreferences);
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
@@ -693,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.start(client, viewAction);
     }
+
 
     @Override
     public void onStop() {
