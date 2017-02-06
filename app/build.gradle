@@ -52,4 +52,7 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'com.google.android.gms:play-services:9.8.0'
     compile 'com.android.support:support-v4:24.2.1'
+
+    // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.3.0'
 }

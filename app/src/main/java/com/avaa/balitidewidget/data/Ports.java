@@ -8,12 +8,15 @@ import android.util.SparseArray;
 
 import com.avaa.balitidewidget.R;
 import com.google.android.gms.maps.model.LatLng;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -86,19 +89,22 @@ public class Ports extends LinkedHashMap<String, Port> {
         put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
 
         if (context != null) {
-            InputStream inputStream = context.getResources().openRawResource(R.raw.ports);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            CsvParserSettings csvParserSettings = new CsvParserSettings();
+            csvParserSettings.setHeaderExtractionEnabled(false);
+            csvParserSettings.getFormat().setLineSeparator("\r");
+            CsvParser parser = new CsvParser(csvParserSettings);
 
-            try {
-                String line = bufferedReader.readLine();
-                while (line != null) {
-                    String[] split = line.split(",");
-                    if (split.length < 3) continue;
-                    put(new Port(split[0], split[1], null, new String[]{split[2]}, new LatLng(-80.601699, 19.517401), +8));
-                    line = bufferedReader.readLine();
+            parser.beginParsing(context.getResources().openRawResource(R.raw.list));
+
+            String[] row;
+            while ((row = parser.parseNext()) != null) {
+                if (row[4] != null && !row[4].isEmpty() && row[5] != null && !row[5].isEmpty()) {
+                    LatLng latLng = new LatLng(Double.valueOf(row[4]), Double.valueOf(row[5]));
+                    put(new Port(row[0], row[1], null, new String[]{row[2]}, latLng, +8));
                 }
-            } catch (IOException ignored) {
             }
+
+            parser.stopParsing();
         }
 
         portsSortedByDistance = new ArrayList<>(values());
