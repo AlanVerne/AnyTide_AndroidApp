@@ -610,8 +610,11 @@ public class TideChartDrawer {
         paintExtremumsText.getTextBounds("0.00m", 0, 5, bounds);
         int labelW2 = bounds.width()/2;
 
+        Point p = new Point(-1000, -1000);
         for (Map.Entry<Integer, Integer> tide : extremums.entrySet()) {
-            Point p = new Point(w * (tide.getKey()-sH*60) / (eH-sH)/60, getY(tide.getValue()));
+            int x = w * (tide.getKey()-sH*60) / (eH-sH)/60;
+            if (x - p.x < labelW2*2.5) continue;
+            p = new Point(x, getY(tide.getValue()));
 
             if (p.x < labelW2+levelScaleWidthLeft || p.x > w-labelW2-levelScaleWidthRight) continue;
 

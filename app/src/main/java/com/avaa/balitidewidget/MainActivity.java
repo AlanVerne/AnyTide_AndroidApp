@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     private static final float ZOOM_OUT = 8.5f;
     private static final int FL_CL_PERMISSIONS_REQUEST = 123;
 
+    private final String yesterdayStr;
     private final String todayStr;
     private final String tomorrowStr;
 
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     if (googleMap.getCameraPosition().zoom > 5) {
                         LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
 
-                        int max = 20;
+                        int max = 30;
                         for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
                             if (bounds.contains(entry.getValue().position) || entry.getValue().favorite) {
                                 if (max > 0 || entry.getValue().favorite) {
@@ -301,6 +302,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public MainActivity() {
+        yesterdayStr = DateUtils.getRelativeTimeSpanString(
+                0, 1000 * 60 * 60 * 24,
+                DateUtils.DAY_IN_MILLIS,
+                DateUtils.FORMAT_SHOW_WEEKDAY).toString();
         todayStr = DateUtils.getRelativeTimeSpanString(
                 0, 0,
                 DateUtils.DAY_IN_MILLIS,
@@ -917,15 +922,41 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDates() {
         Calendar calendar = new GregorianCalendar(selectedPort.getTimeZone());
+
         int today = calendar.get(Calendar.DAY_OF_YEAR);
         shownDay = today;
 
-        textViews[0].setText(todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-        calendar.add(Calendar.DATE, 1);
-        textViews[1].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-        for (int i = 2; i < N_DAYS; i++) {
+        Calendar calendarMy = new GregorianCalendar(TimeZone.getDefault());
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendarMy.set(Calendar.HOUR_OF_DAY, 0);
+
+        if (calendar.get(Calendar.DATE) == calendarMy.get(Calendar.DATE)) {
+            textViews[0].setText(todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
             calendar.add(Calendar.DATE, 1);
-            textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
+            textViews[1].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+            for (int i = 2; i < N_DAYS; i++) {
+                calendar.add(Calendar.DATE, 1);
+                textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
+            }
+        } else {
+            if (calendar.getTimeInMillis() < calendarMy.getTimeInMillis()) {
+                textViews[0].setText(yesterdayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+                calendar.add(Calendar.DATE, 1);
+                textViews[1].setText(todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+                calendar.add(Calendar.DATE, 1);
+                textViews[2].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+                for (int i = 3; i < N_DAYS; i++) {
+                    calendar.add(Calendar.DATE, 1);
+                    textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
+                }
+            } else {
+                textViews[0].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+                for (int i = 1; i < N_DAYS; i++) {
+                    calendar.add(Calendar.DATE, 1);
+                    textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
+                }
+            }
         }
     }
 
@@ -938,6 +969,7 @@ public class MainActivity extends AppCompatActivity {
         if (size.x == 0 || size.y == 0) return;
 
         //setTideLoadingInProgress(true);
+        updateDates();
 
         int i = 0;
         if (tideData != null && !tideData.isEmpty()) {
