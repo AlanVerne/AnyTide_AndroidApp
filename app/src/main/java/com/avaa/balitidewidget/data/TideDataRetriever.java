@@ -55,7 +55,7 @@ public class TideDataRetriever extends AsyncTask<String, Void, TideData> {
             String[] split = result.toString("ASCII").split("\n--\n"); //"UTF-8").split("\n--\n");
 
             long currentTimeMillis = System.currentTimeMillis();
-            return new TideData(port.getTimeZone(), split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
+            return new TideData(port.timeZone, split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
         } catch (Exception e) {
             Log.i(TAG, "doInBackground() | fetch failed");
             e.printStackTrace();

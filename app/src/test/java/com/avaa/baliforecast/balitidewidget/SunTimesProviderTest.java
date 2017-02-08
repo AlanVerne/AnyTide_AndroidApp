@@ -11,7 +11,7 @@ import org.junit.Test;
 import static java.lang.System.out;
 
 public class SunTimesProviderTest {
-    private static final Ports ports = new Ports();
+    private static final Ports ports = new Ports(null);
 
     @Test
     public static void test() throws Exception {

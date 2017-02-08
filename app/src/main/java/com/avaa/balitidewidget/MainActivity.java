@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
         density = getResources().getDisplayMetrics().density;
         drawer = new TideChartDrawer(density, false);
 
-        tideDataProvider = TideDataProvider.getInstance(PORTS, sharedPreferences);
+        tideDataProvider = TideDataProvider.getInstance(sharedPreferences);
         tideDataProvider.addListener(new TideDataProvider.TideDataProviderListener() {
             @Override
             public void updated(final String portID) {
@@ -921,7 +921,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateDates() {
-        Calendar calendar = new GregorianCalendar(selectedPort.getTimeZone());
+        Calendar calendar = new GregorianCalendar(selectedPort.timeZone);
 
         int today = calendar.get(Calendar.DAY_OF_YEAR);
         shownDay = today;

@@ -1,6 +1,5 @@
 package com.avaa.balitidewidget;
 
-import android.*;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -31,13 +30,12 @@ import com.avaa.balitidewidget.views.ExtendedEditText;
 import com.avaa.balitidewidget.views.PortsListViewAdapter;
 
 import java.util.List;
-import java.util.Map;
 
 
 public class ChoosePortFragment extends Fragment {
     private static final int FL_CL_PERMISSIONS_REQUEST = 123;
 
-    private static final Ports PORTS = new Ports(null);
+    private Ports ports;
 
     private ChoosePortFragmentListener listener;
 
@@ -51,6 +49,7 @@ public class ChoosePortFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        ports = new Ports(getContext());
         super.onCreate(savedInstanceState);
     }
 
@@ -103,7 +102,7 @@ public class ChoosePortFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(Common.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        PORTS.load(sharedPreferences);
+        ports.load(sharedPreferences);
     }
 
 
@@ -200,7 +199,7 @@ public class ChoosePortFragment extends Fragment {
     }
     private void updateSearchResults(String s) {
         lvSearchResultsAdapter.clear();
-        lvSearchResultsAdapter.addAll(PORTS.search(s));
+        lvSearchResultsAdapter.addAll(ports.search(s));
     }
 
 
@@ -209,6 +208,7 @@ public class ChoosePortFragment extends Fragment {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
                     FL_CL_PERMISSIONS_REQUEST);
+            return null;
         }
 
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -223,7 +223,7 @@ public class ChoosePortFragment extends Fragment {
 
         Location location = locationManager.getLastKnownLocation(provider);
 
-        PORTS.setMyLocation(location);
+        ports.setMyLocation(location);
 
         return location;
     }
@@ -232,10 +232,10 @@ public class ChoosePortFragment extends Fragment {
     public Port getBestPort() {
         updateMyLocation();
 
-        Port nearestFavorite = PORTS.searchNearestFavorite();
+        Port nearestFavorite = ports.searchNearestFavorite();
         if (nearestFavorite != null && nearestFavorite.distance < 50000) return nearestFavorite;
-        else if (PORTS.portsAreSortedByDistance()) {
-            Port nearestNotFavorite = PORTS.searchNearestNotFavorite();
+        else if (ports.portsAreSortedByDistance()) {
+            Port nearestNotFavorite = ports.searchNearestNotFavorite();
             if (nearestNotFavorite != null && nearestNotFavorite.distance < 25000) return nearestNotFavorite;
         }
 

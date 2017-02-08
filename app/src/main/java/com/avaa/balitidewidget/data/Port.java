@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.sql.Time;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 
@@ -22,27 +23,38 @@ import java.util.TimeZone;
 
 public class Port {
     public final String id;
+
     private String name = null;
     private final String[] nameWords;
     private final String[] altNames;
     private final String[] countyAndArea;
     public  final LatLng   position;
+    public  final int      utc;
+    public  final TimeZone timeZone;
+
 //    public int min;
 //    public int max;
 //    public MarkerOptions markerOptions;
+
     public Marker  marker   = null;
     public boolean favorite = false;
-    public int     utc      = +8;
-    public float   distance = -1;
+
+    public float distance = -1;
 
 
-//    public Port(String name, LatLng position) {
-//        this.name = name;
-//        this.nameWords = name.split(" ");
-//        this.position = position;
-//        this.altNames = null;
-//        this.countyAndArea = null;
-//    }
+    public Port(String id, String name, String position, String timeZone) {
+        this.id = id;
+        this.name = name;
+        this.nameWords = name.split(" ");
+        this.altNames = null;
+        this.countyAndArea = null;
+
+        String[] split = position.split(" ");
+        this.position = new LatLng(Double.valueOf(split[0]), Double.valueOf(split[1]));
+
+        this.timeZone = TimeZone.getTimeZone(timeZone);
+        this.utc = this.timeZone.getOffset(System.currentTimeMillis())/1000/60/60;
+    }
     public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position) {
         this.id = id;
         this.name = name;
@@ -50,6 +62,9 @@ public class Port {
         this.altNames = altNames;
         this.countyAndArea = countyAndArea;
         this.position = position;
+
+        this.timeZone = getTimeZone(+8);
+        this.utc = +8;
     }
     public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position, int utc) {
         this.id = id;
@@ -58,7 +73,9 @@ public class Port {
         this.altNames = altNames;
         this.countyAndArea = countyAndArea;
         this.position = position;
+
         this.utc = utc;
+        this.timeZone = getTimeZone(utc);
     }
 
 
@@ -90,19 +107,21 @@ public class Port {
 
 
     public String getDistanceString() {
-        if (this.distance < 0)  return "";
+        if (this.distance < 0) return "";
 
         float distance = DistanceUnits.fix(this.distance);
 
-        if (distance > 10000)   return String.valueOf((int)(distance / 1000)) + DistanceUnits.getUnit();
-        else                    return String.valueOf((int)(distance / 100) / 10f) + DistanceUnits.getUnit();
+        if (distance > 10000) return String.valueOf((int)(distance / 1000)) + DistanceUnits.getUnit();
+        else                  return String.valueOf((int)(distance / 100) / 10f) + DistanceUnits.getUnit();
     }
 
 
     public static String getTimeZoneString(int offset) {
-        return "UTC" + (offset >= 0 ? "+" : "") + String.valueOf(offset);
+        return "GMT" + (offset >= 0 ? "+" : "") + String.valueOf(offset);
     }
-    public TimeZone getTimeZone() {
+
+
+    public static TimeZone getTimeZone(int utc) {
         return TimeZone.getTimeZone("GMT" + (utc >= 0 ? "+" : "") + String.valueOf(utc));
     }
 

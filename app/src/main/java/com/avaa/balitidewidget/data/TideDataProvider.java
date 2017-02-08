@@ -20,7 +20,6 @@ import java.util.TreeMap;
 
 public class TideDataProvider {
     private static final String TAG = "TideDataProv";
-    private static final String SPKEY_SAVED_PORT_IDS = "SavedPortIDs";
     private static final String SPKEY_TIDE_DATA_PRECISE = "TideDataPrecise";
     private static final String SPKEY_TIDE_DATA_EXTREMUMS = "TideDataExtremums";
 
@@ -29,7 +28,6 @@ public class TideDataProvider {
     protected final SortedMap<String, TideData> portIDToTideData = new TreeMap<>();
     private final Map<String, TideDataRetriever> asyncTasks = new HashMap<>();
 
-    private final Ports ports;
     private final SharedPreferences sharedPreferences;
 
     public interface TideDataProviderListener {
@@ -44,22 +42,22 @@ public class TideDataProvider {
     public static TideDataProvider getInstance() {
         return instance;
     }
-    public static TideDataProvider getInstance(Ports ports, SharedPreferences sharedPreferences) {
-        if (instance == null) {
-            instance = new TideDataProvider(ports, sharedPreferences);
-        }
+    public static TideDataProvider getInstance(SharedPreferences sharedPreferences) {
+        if (instance == null) instance = new TideDataProvider(sharedPreferences);
         return instance;
     }
 
 
     public TideData get(Port port, int needDays, Runnable afterFetch) {
         TideData tideData = portIDToTideData.get(port.id);
+        if (tideData == null && !portIDToTideData.containsKey(port.id)) tideData = load(port);
         if (tideData == null || tideData.needAndCanUpdate(needDays)) fetch(port, afterFetch);
         if (tideData != null && tideData.isEmpty()) tideData = null;
         return tideData;
     }
     public TideData get(Port port) {
         TideData tideData = portIDToTideData.get(port.id);
+        if (tideData == null && !portIDToTideData.containsKey(port.id)) tideData = load(port);
         if (tideData == null || tideData.needAndCanUpdate()) fetch(port);
         if (tideData != null && tideData.isEmpty()) tideData = null;
         return tideData;
@@ -100,10 +98,8 @@ public class TideDataProvider {
     // --
 
 
-    private TideDataProvider(Ports ports, SharedPreferences sharedPreferences) {
-        this.ports = ports;
+    private TideDataProvider(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
-        load();
     }
 
 
@@ -132,25 +128,27 @@ public class TideDataProvider {
     // --
 
 
-    private void load() {
-        Set<String> portIDs = sharedPreferences.getStringSet(SPKEY_SAVED_PORT_IDS, null);
-        if (portIDs == null) return;
+    private TideData load(Port port) {
+        TideData tideData = null;
 
-        for (String portID : portIDs) {
-            String precise   = sharedPreferences.getString(SPKEY_TIDE_DATA_PRECISE   + portID, null);
-            String extremums = sharedPreferences.getString(SPKEY_TIDE_DATA_EXTREMUMS + portID, null);
-            if (precise != null && extremums != null) {
-                TideData tideData = new TideData(ports.get(portID).getTimeZone(), precise, extremums);
-                if (tideData.hasDays() > 0) portIDToTideData.put(portID, tideData);
-            }
+        String portID = port.id;
+
+        String precise = sharedPreferences.getString(SPKEY_TIDE_DATA_PRECISE + portID, null);
+        String extremums = sharedPreferences.getString(SPKEY_TIDE_DATA_EXTREMUMS + portID, null);
+
+        if (precise != null && extremums != null) {
+            tideData = new TideData(port.timeZone, precise, extremums);
+            if (tideData.hasDays() <= 0) tideData = null;
         }
+
+        portIDToTideData.put(portID, tideData);
+
+        return tideData;
     }
 
 
     private void save(String id) {
         SharedPreferences.Editor edit = sharedPreferences.edit();
-
-        edit.putStringSet(SPKEY_SAVED_PORT_IDS, portIDToTideData.keySet());
 
         TideData tideData = portIDToTideData.get(id);
         edit.putString(SPKEY_TIDE_DATA_PRECISE   + id, tideData.preciseStr);
@@ -158,23 +156,4 @@ public class TideDataProvider {
 
         edit.apply();
     }
-
-
-//    private void saveAll() {
-//        SharedPreferences.Editor edit = sharedPreferences.edit();
-//
-//        Map<String, TideData> toSave = new HashMap<>();
-//        for (Map.Entry<String, TideData> entry : portIDToTideData.entrySet()) {
-//            if (!entry.getValue().isEmpty()) toSave.put(entry.getKey(), entry.getValue());
-//        }
-//
-//        edit.putStringSet(SPKEY_SAVED_PORT_IDS, toSave.keySet());
-//
-//        for (Map.Entry<String, TideData> entry : toSave.entrySet()) {
-//            edit.putString(SPKEY_TIDE_DATA_PRECISE  + entry.getKey(),  entry.getValue().preciseToString());
-//            edit.putString(SPKEY_TIDE_DATA_EXTREMUMS + entry.getKey(), entry.getValue().extremumsToString());
-//        }
-//
-//        edit.apply();
-//    }
 }

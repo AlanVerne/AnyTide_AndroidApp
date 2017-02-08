@@ -147,8 +147,8 @@ public class TideChartDrawer {
             eH = 21;
         }
     }
-    int sH = 0;//3;
-    int eH = 24;//21;
+    int sH = 0;  //3;
+    int eH = 24; //21;
 
 
     private int getY(int tide) {
@@ -166,7 +166,7 @@ public class TideChartDrawer {
         w = width  - border*2;
         h = height - border*2;
 
-        long day = Common.getDay(plusDays, port.getTimeZone());
+        long day = Common.getDay(plusDays, port.timeZone);
 
         if (tideData == null || !tideData.hasData(day)) {
             DrawNoData();
@@ -264,14 +264,14 @@ public class TideChartDrawer {
         DrawLabels(tomorrow == 1);
         if (tomorrow == 0) {
             Integer nowTide = tideData.getNow(day);
-            if (nowTide == null) DrawNowLines(port.getTimeZone(), paint);
-            else DrawNowLines(nowTide, port.getTimeZone(), paint);
+            if (nowTide == null) DrawNowLines(port.timeZone, paint);
+            else DrawNowLines(nowTide, port.timeZone, paint);
         }
 
         int widthInMinutes = (eH-sH)*60;
         int sM = sH*60;
 
-        SunTimes sunTimes = SunTimesProvider.get(port.position, day, port.getTimeZone());
+        SunTimes sunTimes = SunTimesProvider.get(port.position, day, port.timeZone);
         int firstlight = (sunTimes.cSunrise-sM) * w / widthInMinutes;
         int lastlight  = (sunTimes.cSunset -sM) * w / widthInMinutes;
         int sunrise    = (sunTimes.sunrise -sM) * w / widthInMinutes;
@@ -354,7 +354,7 @@ public class TideChartDrawer {
 
         c.save();
         try {
-            Calendar cal = new GregorianCalendar(port.getTimeZone());
+            Calendar cal = new GregorianCalendar(port.timeZone);
             int dayofyear = cal.get(Calendar.DAY_OF_YEAR);
             if (density >= 1 && context != null && dayofyear > 355 || dayofyear <= 7) {
                 //Drawable drawable = context.getResources().getDrawable(context.getResources().getDrawable(R.drawable.snowflakes));

@@ -55,4 +55,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
     compile group: 'com.univocity', name: 'univocity-parsers', version: '2.3.0'
+
+//    compile 'com.google.code.gson:gson:2.8.0'
 }
