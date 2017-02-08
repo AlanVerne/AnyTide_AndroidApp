@@ -65,7 +65,7 @@ public class TideWidget extends AppWidgetProvider {
 
     public void updateWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIDs) {
         for (int appWidgetID : appWidgetIDs) {
-            Port port = getWidgetPort(appWidgetID);
+            Port port = getAppWidgetPort(appWidgetID);
 
             if (port == null) return;
 
@@ -85,7 +85,7 @@ public class TideWidget extends AppWidgetProvider {
         updateWidget(context, appWidgetManager, appWidgetID, AppWidgetSizeUtils.getSizeInPixels(appWidgetManager, appWidgetID), hourly);
     }
     public void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetID, Point size, boolean hourly) {
-        Port port = getWidgetPort(appWidgetID);
+        Port port = getAppWidgetPort(appWidgetID);
 
         if (port == null) return;
 
@@ -104,9 +104,9 @@ public class TideWidget extends AppWidgetProvider {
 
         tideChartDrawer.set24h(!crop(appWidgetID));
         tideChartDrawer.name = showName(appWidgetID) ? port.getName() : null;
-        Bitmap bitmap = tideChartDrawer.draw(widgetSize.x, widgetSize.y, tideData, showTomorrow ? 1 : 0, showTomorrow ? 1 : 0, hourly, port); //ports.get(getWidgetPortID(appWidgetID))
+        Bitmap bitmap = tideChartDrawer.draw(widgetSize.x, widgetSize.y, tideData, showTomorrow ? 1 : 0, showTomorrow ? 1 : 0, hourly, port); //ports.get(getAppWidgetPortID(appWidgetID))
 
-        Log.i(TAG, "updateWidget() | " + bitmap.getWidth());
+//        Log.i(TAG, "updateWidget() | " + bitmap.getWidth());
 
         Intent intent = new Intent(context, getClass());
         intent.setAction(ACTION_WIDGET_CLICKED);
@@ -139,7 +139,7 @@ public class TideWidget extends AppWidgetProvider {
 //        display.getCurrentSizeRange(s, s2);
 //        Log.i("BTW", "s" + s + "   " + s2);
 
-        Log.i("BTW", "ON RECIEVE" + intent.getAction());
+//        Log.i("BTW", "ON RECIEVE" + intent.getAction());
 
         if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -170,7 +170,7 @@ public class TideWidget extends AppWidgetProvider {
         Intent intentStartActivity = new Intent(context, MainActivity.class);
         intentStartActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Bundle b = new Bundle();
-        b.putString(EXTRA_WIDGET_ID, getWidgetPortID(widgetID));
+        b.putString(EXTRA_WIDGET_ID, getAppWidgetPortID(widgetID));
         intentStartActivity.putExtras(b);
         context.startActivity(intentStartActivity);
     }
@@ -178,13 +178,13 @@ public class TideWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        Log.i("BTW", "on enabled");
+//        Log.i(TAG, "on enabled");
         AlarmManagerUtils.scheduleUpdate(context);
         context.getApplicationContext().startService(new Intent(context.getApplicationContext(), ConfigurationChangedListener.class));
     }
     @Override
     public void onDisabled(Context context) {
-        Log.i("BTW", "on disabled");
+//        Log.i(TAG, "on disabled");
         AlarmManagerUtils.clearUpdate(context);
         context.getApplicationContext().stopService(new Intent(context.getApplicationContext(), ConfigurationChangedListener.class));
     }
@@ -193,17 +193,17 @@ public class TideWidget extends AppWidgetProvider {
     //
 
 
-    private String getWidgetPortID(int appWidgetID) {
+    private String getAppWidgetPortID(int appWidgetID) {
         return sharedPreferences.getString(SPKEY_PORT_ID + appWidgetID, Common.BENOA_PORT_ID);
     }
-    private Port getWidgetPort(int appWidgetID) {
+    private Port getAppWidgetPort(int appWidgetID) {
         String stringAppWidgetID = String.valueOf(appWidgetID);
         String portID = sharedPreferences.getString(SPKEY_PORT_ID + stringAppWidgetID, Common.BENOA_PORT_ID);
         String portName = sharedPreferences.getString(SPKEY_PORT_NAME + stringAppWidgetID, null);
         String portPosition = sharedPreferences.getString(SPKEY_PORT_POSITION + stringAppWidgetID, null);
         String portTimeZoneID = sharedPreferences.getString(SPKEY_PORT_TIMEZONE + stringAppWidgetID, null);
 
-        Log.i(TAG, "getWidgetPort("+appWidgetID+") | " + portID + " " + portName + " " + portPosition + " " + portTimeZoneID);
+//        Log.i(TAG, "getAppWidgetPort("+appWidgetID+") | " + portID + " " + portName + " " + portPosition + " " + portTimeZoneID);
         if (portTimeZoneID == null || portPosition == null) return getPorts().get(portID); // backward compatibility
 
         return new Port(portID, portName, portPosition, portTimeZoneID);

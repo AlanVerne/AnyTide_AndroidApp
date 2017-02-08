@@ -158,7 +158,7 @@ public class TideChartDrawer {
     public Context context = null;
 
     public Bitmap draw(int width, int height, TideData tideData, int plusDays, int tomorrow, boolean drawHourly, Port port) {
-        Log.i("TCD", "draw " + width + " " + height);
+//        Log.i("TCD", "draw " + width + " " + height);
 
         Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         c = new Canvas(b);

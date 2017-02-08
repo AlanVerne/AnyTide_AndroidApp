@@ -68,14 +68,14 @@ public class TideDataProvider {
         fetch(port, null);
     }
     public void fetch(@NonNull Port port, @Nullable final Runnable widgetsRunnable) {
-        Log.i(TAG, "fetch() | " + port);
+//        Log.i(TAG, "fetch() | " + port);
 
         TideData tideData = portIDToTideData.get(port.id);
         if (tideData != null) {
             tideData.fetched = System.currentTimeMillis();
         }
         else {
-            Log.i(TAG, "fetch() | current tidedata null");
+//            Log.i(TAG, "fetch() | current tidedata null");
             portIDToTideData.put(port.id, new TideData(System.currentTimeMillis()));
         }
 

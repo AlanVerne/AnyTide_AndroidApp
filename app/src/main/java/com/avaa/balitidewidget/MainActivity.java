@@ -741,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void btnUpdateClick(View view) {
-        Log.i(TAG, "btnUpdateClick");
+//        Log.i(TAG, "btnUpdateClick");
         if (selectedPort != null) tideDataProvider.fetch(selectedPort);
     }
 
@@ -1030,7 +1030,7 @@ public class MainActivity extends AppCompatActivity {
         TideData tideData;
 
         public TideChartsAsyncDrawer(int w, int h, TideChartDrawer drawer, TideData tideData) {
-            Log.i(TAG, "TideChartsAsyncDrawer");
+//            Log.i(TAG, "TideChartsAsyncDrawer");
             this.w = w;
             this.h = h;
             this.drawer = new TideChartDrawer(drawer.density); // drawer;
@@ -1039,7 +1039,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Map<Integer, Bitmap> doInBackground(Void... params) {
-            Log.i(TAG, "doInBackground");
+//            Log.i(TAG, "doInBackground");
             Map<Integer, Bitmap> map = new HashMap<>();
             int i = 1;
             while (tideData.hasData(Common.getDay(i, tideData.timeZone))) {
@@ -1052,7 +1052,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Map<Integer, Bitmap> bitmaps) {
-            Log.i(TAG, "onPostExecute");
+//            Log.i(TAG, "onPostExecute");
             for (Map.Entry<Integer, Bitmap> b : bitmaps.entrySet()) {
                 Integer day = b.getKey();
                 if (day >= N_DAYS) continue;

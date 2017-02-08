@@ -16,7 +16,7 @@ public class MyPackageReplacedBR extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         ComponentName name = new ComponentName(context.getApplicationContext(), TideWidget.class);
         int [] ids = AppWidgetManager.getInstance(context.getApplicationContext()).getAppWidgetIds(name);
-        Log.i("BTW", "MyPackageReplacedBR " + ids.length);
+//        Log.i("BTW", "MyPackageReplacedBR " + ids.length);
         if (ids.length > 0) context.getApplicationContext().startService(new Intent(context.getApplicationContext(), ConfigurationChangedListener.class));
     }
 }

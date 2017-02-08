@@ -56,7 +56,7 @@ public class SunTimesProvider {
                 Math.round((julianToUnix(Jnau) - date) / 60f)
         );
 
-        Log.i(TAG, position.toString() + " - " + timeZone.toString() + " - " + sunTimes.toString());
+//        Log.i(TAG, position.toString() + " - " + timeZone.toString() + " - " + sunTimes.toString());
 
         return sunTimes;
     }

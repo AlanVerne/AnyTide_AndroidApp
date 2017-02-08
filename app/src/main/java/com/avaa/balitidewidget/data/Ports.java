@@ -200,7 +200,7 @@ public class Ports extends LinkedHashMap<String, Port> {
     public List<Port> search(final String[] s) {
         if (s == null) return search();
 
-        Log.i(TAG, "search(l="+s.length+", s[0]="+s[0]+")");
+//        Log.i(TAG, "search(l="+s.length+", s[0]="+s[0]+")");
 
         for (int i = 0; i < s.length; i++) {
             s[i] = s[i].length() > 1 ? s[i].substring(0, 1).toUpperCase() + s[i].substring(1).toLowerCase() : s[i].toUpperCase();

@@ -22,7 +22,7 @@ public class TideDataRetriever extends AsyncTask<String, Void, TideData> {
     private final Port port;
 
     TideDataRetriever(TideDataProvider tideDataProvider, Port port, Runnable runAfter) {
-        Log.i(TAG, "new TideDataRetriever() | for " + port);
+//        Log.i(TAG, "new TideDataRetriever() | for " + port);
 
         this.tideDataProvider = tideDataProvider;
         this.port = port;
@@ -30,7 +30,7 @@ public class TideDataRetriever extends AsyncTask<String, Void, TideData> {
     }
 
     protected TideData doInBackground(String... addr) {
-        Log.i(TAG, "doInBackground()");
+//        Log.i(TAG, "doInBackground()");
 
         URL url;
 
@@ -57,14 +57,14 @@ public class TideDataRetriever extends AsyncTask<String, Void, TideData> {
             long currentTimeMillis = System.currentTimeMillis();
             return new TideData(port.timeZone, split[0].trim(), split[1].trim(), currentTimeMillis, currentTimeMillis);
         } catch (Exception e) {
-            Log.i(TAG, "doInBackground() | fetch failed");
+//            Log.i(TAG, "doInBackground() | fetch failed");
             e.printStackTrace();
         }
         return null;
     }
 
     protected void onPostExecute(TideData tideData) {
-        Log.i(TAG, "onPostExecute() | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
+//        Log.i(TAG, "onPostExecute() | for " + port + ", " + (tideData == null ? "tideData = null" : "hasDays = " + tideData.hasDays()));
 
         tideDataProvider.fireLoadingStateChanged(port.id, false);
 

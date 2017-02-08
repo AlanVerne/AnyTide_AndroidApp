@@ -69,7 +69,7 @@ public class TideData {
             String[] daily = preciseStr.split("\n");
 
             if (daily.length % 2 == 1) {
-                Log.i(TAG, "new TideData() | " + "failed to parce preciseStr");
+//                Log.i(TAG, "new TideData() | " + "failed to parce preciseStr");
                 return;
             }
 
@@ -89,7 +89,7 @@ public class TideData {
             String[] split = extremumsStr.split("\n");
 
             if (split.length % 2 == 1) {
-                Log.i(TAG, "new TideData() | " + "failed to parce extremumsStr");
+//                Log.i(TAG, "new TideData() | " + "failed to parce extremumsStr");
                 return;
             }
 
@@ -112,7 +112,7 @@ public class TideData {
         int day = calendar.get(Calendar.DAY_OF_YEAR);
 
         if (hasDaysStartingFrom == day) {
-            Log.i(TAG, "hasDays() cached: startfrom = " + hasDaysStartingFrom + ", days = " + hasDaysN);
+//            Log.i(TAG, "hasDays() cached: startfrom = " + hasDaysStartingFrom + ", days = " + hasDaysN);
             return hasDaysN;
         }
 
@@ -123,7 +123,7 @@ public class TideData {
             hasDaysN++;
         }
 
-        Log.i(TAG, "hasDays() calculated: startfrom = " + hasDaysStartingFrom + ", days = " + hasDaysN);
+//        Log.i(TAG, "hasDays() calculated: startfrom = " + hasDaysStartingFrom + ", days = " + hasDaysN);
 
         return hasDaysN;
     }
