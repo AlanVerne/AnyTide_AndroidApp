@@ -25,7 +25,7 @@ public class SunTimesProviderTest {
 
     private static void check(String portID) {
         Port port = ports.get(portID);
-        SunTimes sunTimes = SunTimesProvider.get(port.position, port.getTimeZone());
+        SunTimes sunTimes = SunTimesProvider.get(port.position, port.timeZone);
         out.println(port.getName() + ": \t" + sunTimes.toString());
     }
 }

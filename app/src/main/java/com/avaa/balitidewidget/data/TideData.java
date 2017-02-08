@@ -44,8 +44,8 @@ public class TideData {
     }
 
 
-    public TideData(Long fetched) {
-        this.timeZone = null;
+    public TideData(TimeZone timeZone, Long fetched) {
+        this.timeZone = timeZone;
 
         this.fetched = fetched;
         this.fetchedSuccessfully = 0L;

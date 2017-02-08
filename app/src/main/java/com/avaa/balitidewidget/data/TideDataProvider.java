@@ -76,7 +76,7 @@ public class TideDataProvider {
         }
         else {
 //            Log.i(TAG, "fetch() | current tidedata null");
-            portIDToTideData.put(port.id, new TideData(System.currentTimeMillis()));
+            portIDToTideData.put(port.id, new TideData(port.timeZone, System.currentTimeMillis()));
         }
 
         TideDataRetriever asyncTask = asyncTasks.get(port.id);
