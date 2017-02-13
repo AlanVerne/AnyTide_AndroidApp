@@ -5,9 +5,11 @@ import android.util.Log;
 
 import com.avaa.balitidewidget.Common;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TimeZone;
@@ -126,6 +128,30 @@ public class TideData {
 //        Log.i(TAG, "hasDays() calculated: startfrom = " + hasDaysStartingFrom + ", days = " + hasDaysN);
 
         return hasDaysN;
+    }
+    public int[] hasDaysExact() {
+        if (timeZone == null || isEmpty()) return null;
+
+        Calendar calendar = Common.getCalendarToday(timeZone);
+
+        int[] range = new int[2];
+        range[0] = -1;
+        range[1] = -1;
+
+        for (int i = 0; i < 8; i++) {
+            if (hasData(Common.getUnixTimeFromCalendar(calendar))) {
+                if (range[0] == -1) range[0] = i;
+                range[1] = i;
+            }
+            else if (range[1] != -1) {
+                break;
+            }
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        Log.i(TAG, "hasDaysExact() | " + range[0] + " " + range[1]);
+
+        return range[0] == -1 ? null : range;
     }
 
 

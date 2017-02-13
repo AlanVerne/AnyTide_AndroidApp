@@ -200,6 +200,27 @@
                         android:layout_gravity="center"
                         />
                 </FrameLayout>
+                <FrameLayout
+                    android:id="@+id/btnReportMistake"
+                    android:layout_width="120dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/rounded"
+                    android:elevation="2dp"
+                    android:padding="0dp"
+                    android:textColor="#ffffff"
+                    android:clickable="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:onClick="btnReportMistakeClick"
+                    >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="MISTAKE?"
+                        android:textSize="14dp"
+                        android:textColor="#ff000000"/>
+                </FrameLayout>
                 <LinearLayout
                     android:id="@+id/tidesTopShadow"
                     android:layout_width="match_parent"

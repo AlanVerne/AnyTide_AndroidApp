@@ -88,19 +88,34 @@ public class Ports extends LinkedHashMap<String, Port> {
         put(new Port("5396", "Teluk Sape", null, indonesiaSumbawa, new LatLng(-8.571800, 119.014635), +8));
         put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
 
+        String prevCountry = null;
+        Map<String, TimeZone> timeZones = new HashMap<>(10);
+
         if (context != null) {
             CsvParserSettings csvParserSettings = new CsvParserSettings();
             csvParserSettings.setHeaderExtractionEnabled(false);
-            csvParserSettings.getFormat().setLineSeparator("\r");
+            csvParserSettings.getFormat().setLineSeparator("\n");
             CsvParser parser = new CsvParser(csvParserSettings);
 
-            parser.beginParsing(context.getResources().openRawResource(R.raw.list));
+            parser.beginParsing(context.getResources().openRawResource(R.raw.ports_indo_and_time_zones));
 
             String[] row;
             while ((row = parser.parseNext()) != null) {
                 if (row[4] != null && !row[4].isEmpty() && row[5] != null && !row[5].isEmpty()) {
                     LatLng latLng = new LatLng(Double.valueOf(row[4]), Double.valueOf(row[5]));
-                    put(new Port(row[0], row[1], null, new String[]{row[2]}, latLng, +8));
+
+                    String country = row[7];
+                    if (country.equals(prevCountry)) country = prevCountry;
+                    else prevCountry = country;
+
+                    String strTimeZone = row[9];
+                    TimeZone timeZone = timeZones.get(strTimeZone);
+                    if (timeZone == null) {
+                        timeZone = TimeZone.getTimeZone(strTimeZone);
+                        timeZones.put(strTimeZone, timeZone);
+                    }
+
+                    put(new Port(row[0], row[1], null, new String[]{row[2], country}, latLng, timeZone));
                 }
             }
 

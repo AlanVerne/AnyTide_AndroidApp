@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -45,6 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avaa.balitidewidget.data.DistanceUnits;
 import com.avaa.balitidewidget.data.TideChartDrawer;
@@ -79,6 +81,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -228,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
             hk = Math.max(0, Math.min(1, (scrollY - density*80) / (density*40)));
             findViewById(R.id.btnShowInMapsApp).setAlpha(hk);
+            findViewById(R.id.btnReportMistake).setAlpha(hk);
 
             if (svScroll.isDown()) {
                 allowScrollToZero = scrollY <= textViews[0].getHeight() + chartHeight;
@@ -880,6 +884,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateToday() {
         if (selectedPort == null) return;
+        if (daysRange != null && daysRange[0] != 0) { update(0); return; }
         Point size = getImageSize();
         imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, 0, 0, imageViewsHourly[0], selectedPort));
     }
@@ -887,7 +892,8 @@ public class MainActivity extends AppCompatActivity {
         if (selectedPort == null) return;
         Point size = getImageSize();
         if (i > 1) size.y = (int)(size.y * 0.66);
-        imageViews[i].setImageBitmap(drawer.draw(size.x, size.y, tideData, i, i == 0 ? 0 : -1, imageViewsHourly[i], selectedPort));
+        int day = daysRange == null ? i : i+daysRange[0];
+        imageViews[i].setImageBitmap(drawer.draw(size.x, size.y, tideData, day, day == 0 ? 0 : -1, imageViewsHourly[i], selectedPort));
     }
 
 
@@ -920,6 +926,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private String formatDate(int day, Calendar calendar) {
+        if (day == -1) return yesterdayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar);
+        if (day ==  0) return todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar);
+        if (day ==  1) return tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar);
+        return DateFormat.format(D_MMMM_EEEE, calendar).toString();
+    }
     private void updateDates() {
         Calendar calendar = new GregorianCalendar(selectedPort.timeZone);
 
@@ -931,36 +943,35 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendarMy.set(Calendar.HOUR_OF_DAY, 0);
 
-        if (calendar.get(Calendar.DATE) == calendarMy.get(Calendar.DATE)) {
-            textViews[0].setText(todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
+        int day = 0;
+
+        if (daysRange != null) {
+        for (int i = 0; i < daysRange[0]; i++) {
             calendar.add(Calendar.DATE, 1);
-            textViews[1].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-            for (int i = 2; i < N_DAYS; i++) {
-                calendar.add(Calendar.DATE, 1);
-                textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
-            }
-        } else {
+            calendarMy.add(Calendar.DATE, 1);
+            day++;
+            shownDay++;
+        }
+        }
+
+        if (calendar.get(Calendar.DATE) != calendarMy.get(Calendar.DATE)) {
             if (calendar.getTimeInMillis() < calendarMy.getTimeInMillis()) {
-                textViews[0].setText(yesterdayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-                calendar.add(Calendar.DATE, 1);
-                textViews[1].setText(todayStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-                calendar.add(Calendar.DATE, 1);
-                textViews[2].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-                for (int i = 3; i < N_DAYS; i++) {
-                    calendar.add(Calendar.DATE, 1);
-                    textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
-                }
+                day--;
             } else {
-                textViews[0].setText(tomorrowStr + SPACE + DateFormat.format(D_MMMM_EEEE, calendar));
-                for (int i = 1; i < N_DAYS; i++) {
-                    calendar.add(Calendar.DATE, 1);
-                    textViews[i].setText(DateFormat.format(D_MMMM_EEEE, calendar));
-                }
+                day++;
             }
+        }
+
+        textViews[0].setText(formatDate(day++, calendar));
+        for (int i = 1; i < N_DAYS; i++) {
+            calendar.add(Calendar.DATE, 1);
+            textViews[i].setText(formatDate(day++, calendar));
         }
     }
 
 
+
+    int[] daysRange = null;
     TideChartsAsyncDrawer aDrawer = null;
     private void updateCharts() {
         tideData = tideDataProvider.get(selectedPort);
@@ -969,26 +980,31 @@ public class MainActivity extends AppCompatActivity {
         if (size.x == 0 || size.y == 0) return;
 
         //setTideLoadingInProgress(true);
-        updateDates();
+        //updateDates();
 
         int i = 0;
         if (tideData != null && !tideData.isEmpty()) {
-            if (tideData.hasDays() > 0) {
+            daysRange = tideData.hasDaysExact();
+            updateDates();
+            if (daysRange != null) {
                 tvNoData.setVisibility(View.GONE);
+
                 textViews[0].setVisibility(View.VISIBLE);
                 imageViews[0].setVisibility(View.VISIBLE);
-                imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, 0, 0, imageViewsHourly[0], selectedPort));
+                imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, daysRange[0], daysRange[0] == 0 ? 0 : -1, imageViewsHourly[0], selectedPort));
                 i = 1;
+
+                for (int j = 1; j < Math.min(5, daysRange[1]-daysRange[0]); j++) {
+                    textViews[j].setVisibility(View.VISIBLE);
+                    imageViews[j].setVisibility(View.VISIBLE);
+                    i = j+1;
+                }
+
+                if (aDrawer != null && aDrawer.getStatus() != AsyncTask.Status.FINISHED) aDrawer.cancel(true);
+                TideChartDrawer d = new TideChartDrawer(density, false);
+                aDrawer = new TideChartsAsyncDrawer(size.x, size.y, d, tideData);
+                aDrawer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
-            for (int j = 1; j < Math.min(5, tideData.hasDays()); j++) {
-                textViews[j].setVisibility(View.VISIBLE);
-                imageViews[j].setVisibility(View.VISIBLE);
-                i = j+1;
-            }
-            if (aDrawer != null && aDrawer.getStatus() != AsyncTask.Status.FINISHED) aDrawer.cancel(true);
-            TideChartDrawer d = new TideChartDrawer(density, false);
-            aDrawer = new TideChartsAsyncDrawer(size.x, size.y, d, tideData);
-            aDrawer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         for (; i < N_DAYS; i++) {
             if (i > 0) textViews[i].setVisibility(View.GONE);
@@ -1019,8 +1035,23 @@ public class MainActivity extends AppCompatActivity {
         llPortHeader.setVisibility(b ? View.VISIBLE : View.GONE);
     }
 
+
     public void btnClearSearchClick(View view) {
         etSearch.setText("");
+    }
+
+
+    public void btnReportMistakeClick(View view) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:" + "alan.dominik.verne@gmail.com"));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Mistake report");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Port '" + selectedPort.getName() + "' (id:" + selectedPortID + ") has mistake.");
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send email report"));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(MainActivity.this, "No email clients installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -1041,11 +1072,10 @@ public class MainActivity extends AppCompatActivity {
         protected Map<Integer, Bitmap> doInBackground(Void... params) {
 //            Log.i(TAG, "doInBackground");
             Map<Integer, Bitmap> map = new HashMap<>();
-            int i = 1;
-            while (tideData.hasData(Common.getDay(i, tideData.timeZone))) {
-                if (i == 2) h = (int)(h*0.66);
-                map.put(i, drawer.draw(w, h, tideData, i, -1, true, selectedPort));
-                ++i;
+            int[] daysRange = tideData.hasDaysExact();
+            for (int j = daysRange[0]+1; j < daysRange[1]; j++) {
+                if (j == daysRange[0]+2) h = (int)(h*0.66);
+                map.put(j-daysRange[0], drawer.draw(w, h, tideData, j, -1, true, selectedPort));
             }
             return map;
         }
@@ -1060,6 +1090,7 @@ public class MainActivity extends AppCompatActivity {
                 imageViews[day].setVisibility(View.VISIBLE);
                 imageViews[day].setImageBitmap(b.getValue());
             }
+            tvNoData.setVisibility(View.GONE);
         }
     }
 

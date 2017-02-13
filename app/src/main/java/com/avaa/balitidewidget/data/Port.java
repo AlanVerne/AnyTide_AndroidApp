@@ -66,10 +66,33 @@ public class Port {
         this.timeZone = getTimeZone(+8);
         this.utc = +8;
     }
+    public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position, TimeZone timeZone) {
+        this.id = id;
+
+        this.nameWords = name.split(" ");
+        this.name = null;
+        for (int i = 0; i < nameWords.length; i++) {
+            nameWords[i] = nameWords[i].length() > 1 ? nameWords[i].substring(0, 1).toUpperCase() + nameWords[i].substring(1).toLowerCase() : nameWords[i].toUpperCase();
+            this.name = this.name == null ? nameWords[i] : this.name + " " + nameWords[i];
+        }
+
+        this.altNames = altNames;
+        this.countyAndArea = countyAndArea;
+        this.position = position;
+
+        this.timeZone = timeZone;
+        this.utc = this.timeZone.getOffset(System.currentTimeMillis())/1000/60/60;
+    }
     public Port(String id, String name, String[] altNames, String[] countyAndArea, LatLng position, int utc) {
         this.id = id;
-        this.name = name;
+
         this.nameWords = name.split(" ");
+        this.name = null;
+        for (int i = 0; i < nameWords.length; i++) {
+            nameWords[i] = nameWords[i].length() > 1 ? nameWords[i].substring(0, 1).toUpperCase() + nameWords[i].substring(1).toLowerCase() : nameWords[i].toUpperCase();
+            this.name = this.name == null ? nameWords[i] : this.name + " " + nameWords[i];
+        }
+
         this.altNames = altNames;
         this.countyAndArea = countyAndArea;
         this.position = position;
