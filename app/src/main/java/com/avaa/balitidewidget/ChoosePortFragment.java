@@ -102,7 +102,7 @@ public class ChoosePortFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(Common.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        ports.load(sharedPreferences);
+        ports.loadFromSP(sharedPreferences);
     }
 
 
@@ -234,7 +234,7 @@ public class ChoosePortFragment extends Fragment {
 
         Port nearestFavorite = ports.searchNearestFavorite();
         if (nearestFavorite != null && nearestFavorite.distance < 50000) return nearestFavorite;
-        else if (ports.portsAreSortedByDistance()) {
+        else if (ports.isPortsSortedByDistance()) {
             Port nearestNotFavorite = ports.searchNearestNotFavorite();
             if (nearestNotFavorite != null && nearestNotFavorite.distance < 25000) return nearestNotFavorite;
         }

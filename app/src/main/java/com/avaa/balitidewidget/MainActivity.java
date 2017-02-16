@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -29,7 +28,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -40,7 +38,6 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -81,7 +78,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -174,10 +170,12 @@ public class MainActivity extends AppCompatActivity {
             googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
                 @Override
                 public void onCameraMove() {
-                    if (googleMap.getCameraPosition().zoom > 5) {
+                    if (googleMap.getCameraPosition().zoom > 7) {
+                        findViewById(R.id.flHintZoomIn).setVisibility(View.INVISIBLE);
+
                         LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
 
-                        int max = 30;
+                        int max = 50;
                         for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
                             if (bounds.contains(entry.getValue().position) || entry.getValue().favorite) {
                                 if (max > 0 || entry.getValue().favorite) {
@@ -191,6 +189,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     else {
+                        findViewById(R.id.flHintZoomIn).setVisibility(View.VISIBLE);
+
                         for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
                             if (!entry.getValue().favorite) hideMarker(entry.getValue());
                         }
@@ -297,10 +297,8 @@ public class MainActivity extends AppCompatActivity {
 
             updateAll();
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-                findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            else
-                findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeGlobalOnLayoutListener(this);
+            else findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
     };
 
@@ -325,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(Common.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         PORTS = new Ports(getApplicationContext());
-        PORTS.load(sharedPreferences);
+        PORTS.loadFromSP(sharedPreferences);
 
         DistanceUnits.init();
 
@@ -338,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
             public void updated(final String portID) {
                 if (portID.equals(selectedPortID)) updateCharts();
             }
-
             @Override
             public void loadingStateChanged(final String portID, final boolean loading) {
                 tideLoadingIndicator.post(new Runnable() {
@@ -679,9 +676,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent != null ? intent.getExtras() : null;
         if (extras != null) portID = extras.getString(TideWidget.EXTRA_WIDGET_ID, null);
-        if (portID != null) setSelectedPort(portID);
-
         setIntent(null);
+
+        if (portID != null) {
+            setSelectedPort(portID);
+            svScroll.smoothScrollBy(0, 0);
+            svScroll.scrollTo(0, vSpace.getHeight() + findViewById(R.id.tidesTopShadow).getHeight() - llPortHeader.getHeight());
+        }
 
         //Log.i(TAG, "onResume() " + getIntent().getAction() + portID);
 
@@ -713,7 +714,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (timerOnceIn5Minutes != null) timerOnceIn5Minutes.cancel();
 
-        PORTS.save(sharedPreferences);
+        PORTS.saveToSP(sharedPreferences);
     }
 
 
@@ -1045,13 +1046,27 @@ public class MainActivity extends AppCompatActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
         emailIntent.setData(Uri.parse("mailto:" + "alan.dominik.verne@gmail.com"));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Mistake report");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Port '" + selectedPort.getName() + "' (id:" + selectedPortID + ") has mistake.");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Port '" + selectedPort.getName() + "' (id:" + selectedPortID + ") has mistake.\n\nCorrect location is: ");
 
         try {
             startActivity(Intent.createChooser(emailIntent, "Send email report"));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(MainActivity.this, "No email clients installed.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    public void btnZoomInClick(View view) {
+        if (googleMap == null) return;
+
+        LatLng target = googleMap.getCameraPosition().target;
+        Location location = new Location("");
+        location.setLatitude(target.latitude);
+        location.setLongitude(target.longitude);
+        Port nearestPort = PORTS.getNearest(location);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(nearestPort == null ? target : nearestPort.position, ZOOM_OUT);
+        googleMap.animateCamera(cameraUpdate);
     }
 
 

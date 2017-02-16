@@ -35,7 +35,7 @@ public class Ports extends LinkedHashMap<String, Port> {
     private static final String TAG = "Ports";
 
     private static final String SPKEY_FAVORITE_PORTS = "FavoritePorts";
-    private static final int SEARCH_RESULT_MAX_N = 50;
+    private static final int    SEARCH_RESULT_MAX_N = 50;
 
     private static final Comparator<Port> portsComparatorByDistance = new Comparator<Port>() {
         @Override
@@ -44,50 +44,13 @@ public class Ports extends LinkedHashMap<String, Port> {
         }
     };
 
-    private static class PortEntry extends SimpleEntry<String, Port> {
-        public PortEntry(Entry<? extends String, ? extends Port> copyFrom) {
-            super(copyFrom);
-        }
-        @Override
-        public String toString() {
-            return getValue().getName() + "    " + getValue().getDistanceString();
-        }
-    }
-
     private boolean portsAreSortedByDistance = false;
     private final List<Port> portsSortedByDistance;
 
     private Location myLocation = null;
 
 
-    public Ports(Context context) {
-        String[] portugal = {"Portugal"};
-        put(new Port("1740", "Cascais", null, portugal, new LatLng(38.691915, -9.419067), TimeZone.getTimeZone("Portugal").getOffset(System.currentTimeMillis())));
-
-        String indonesia = "Indonesia";
-
-        String[] indonesiaJava = {"Java", indonesia};
-        put(new Port("5358", "Banyuwangi", null, indonesiaJava, new LatLng(-8.128243, 114.399974), +7));
-        put(new Port("5359", "Pulau Tabuan", null, indonesiaJava, new LatLng(-8.037211, 114.461060), +7));
-        put(new Port("5360", "Gosong Karangmas", null, indonesiaJava, new LatLng(-7.676389, 114.433333), +7));
-
-        String[] indonesiaBali = {"Bali", indonesia};
-        put(new Port("5382", "Benoa", new String[]{"Denpasar", "Old", "Batu"}, indonesiaBali, new LatLng(-8.746247, 115.211678), +8));
-        put(new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, indonesiaBali, new LatLng(-8.164220, 115.019817), +8));
-        put(new Port("5381", "Sanur", new String[]{"Denpasar"}, indonesiaBali, new LatLng(-8.691562, 115.266637), +8));
-        put(new Port("5379A", "Labuan Amuk", new String[]{"Labuhan"}, indonesiaBali, new LatLng(-8.519105, 115.507468), +8));
-
-        String[] indonesiaLombok = {"Lombok", indonesia};
-        put(new Port("5386", "Tanjung Pandanan", null, indonesiaLombok, new LatLng(-8.726043, 115.858193), +8));
-        put(new Port("5385", "Teluk Labuhantereng", null, indonesiaLombok, new LatLng(-8.742473, 116.054388), +8));
-        put(new Port("5384", "Ampenan", null, indonesiaLombok, new LatLng(-8.565419, 116.072186), +8));
-
-        String[] indonesiaSumbawa = {"Sumbawa", indonesia};
-        put(new Port("5395", "Bima", null, indonesiaSumbawa, new LatLng(-8.447375, 118.712837), +8));
-        put(new Port("5397", "Teluk Waworada", null, indonesiaSumbawa, new LatLng(-8.706588, 118.800877), +8));
-        put(new Port("5396", "Teluk Sape", null, indonesiaSumbawa, new LatLng(-8.571800, 119.014635), +8));
-        put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
-
+    private void loadPorts(Context context) {
         String prevCountry = null;
         Map<String, TimeZone> timeZones = new HashMap<>(10);
 
@@ -121,6 +84,42 @@ public class Ports extends LinkedHashMap<String, Port> {
 
             parser.stopParsing();
         }
+    }
+
+
+    private void loadPorts() { // for backward compatibility
+        String[] portugal = {"Portugal"};
+        put(new Port("1740", "Cascais", null, portugal, new LatLng(38.691915, -9.419067), TimeZone.getTimeZone("Portugal").getOffset(System.currentTimeMillis())));
+
+        String indonesia = "Indonesia";
+
+        String[] indonesiaJava = {"Java", indonesia};
+        put(new Port("5358", "Banyuwangi", null, indonesiaJava, new LatLng(-8.128243, 114.399974), +7));
+        put(new Port("5359", "Pulau Tabuan", null, indonesiaJava, new LatLng(-8.037211, 114.461060), +7));
+        put(new Port("5360", "Gosong Karangmas", null, indonesiaJava, new LatLng(-7.676389, 114.433333), +7));
+
+        String[] indonesiaBali = {"Bali", indonesia};
+        put(new Port("5382", "Benoa", new String[]{"Denpasar", "Old", "Batu"}, indonesiaBali, new LatLng(-8.746247, 115.211678), +8));
+        put(new Port("5379", "Buleleng", new String[]{"Lowina", "Singaraja"}, indonesiaBali, new LatLng(-8.164220, 115.019817), +8));
+        put(new Port("5381", "Sanur", new String[]{"Denpasar"}, indonesiaBali, new LatLng(-8.691562, 115.266637), +8));
+        put(new Port("5379A", "Labuan Amuk", new String[]{"Labuhan"}, indonesiaBali, new LatLng(-8.519105, 115.507468), +8));
+
+        String[] indonesiaLombok = {"Lombok", indonesia};
+        put(new Port("5386", "Tanjung Pandanan", null, indonesiaLombok, new LatLng(-8.726043, 115.858193), +8));
+        put(new Port("5385", "Teluk Labuhantereng", null, indonesiaLombok, new LatLng(-8.742473, 116.054388), +8));
+        put(new Port("5384", "Ampenan", null, indonesiaLombok, new LatLng(-8.565419, 116.072186), +8));
+
+        String[] indonesiaSumbawa = {"Sumbawa", indonesia};
+        put(new Port("5395", "Bima", null, indonesiaSumbawa, new LatLng(-8.447375, 118.712837), +8));
+        put(new Port("5397", "Teluk Waworada", null, indonesiaSumbawa, new LatLng(-8.706588, 118.800877), +8));
+        put(new Port("5396", "Teluk Sape", null, indonesiaSumbawa, new LatLng(-8.571800, 119.014635), +8));
+        put(new Port("5399", "Teluk Slawi", null, indonesiaSumbawa, new LatLng(-8.601699, 119.517401), +8));
+    }
+
+
+    public Ports(Context context) {
+        if (context != null) loadPorts(context);
+        else loadPorts();
 
         portsSortedByDistance = new ArrayList<>(values());
     }
@@ -131,7 +130,7 @@ public class Ports extends LinkedHashMap<String, Port> {
     }
 
 
-    public void load(SharedPreferences sp) {
+    public void loadFromSP(SharedPreferences sp) {
         Set<String> favoritePorts = sp.getStringSet(SPKEY_FAVORITE_PORTS, null);
         if (favoritePorts == null) return;
         for (String favoritePort : favoritePorts) {
@@ -139,7 +138,7 @@ public class Ports extends LinkedHashMap<String, Port> {
             if (port != null) port.favorite = true;
         }
     }
-    public void save(SharedPreferences sp) {
+    public void saveToSP(SharedPreferences sp) {
         Set<String> favoritePorts = new HashSet<>();
         for (Entry<String, Port> portEntry : entrySet()) {
             if (portEntry.getValue().favorite) favoritePorts.add(portEntry.getKey());
@@ -148,9 +147,24 @@ public class Ports extends LinkedHashMap<String, Port> {
     }
 
 
-    public boolean portsAreSortedByDistance() {
+    public boolean isPortsSortedByDistance() {
         return portsAreSortedByDistance;
     }
+
+
+    public Port getNearest(Location location) {
+        float minD = Float.MAX_VALUE;
+        Port minDPort = null;
+        for (Port port : values()) {
+            float d = port.getDistance(location);
+            if (minD > d) {
+                minD = d;
+                minDPort = port;
+            }
+        }
+        return minDPort;
+    }
+
 
     public Port searchNearestFavorite() {
         for (Port entry : portsSortedByDistance) {

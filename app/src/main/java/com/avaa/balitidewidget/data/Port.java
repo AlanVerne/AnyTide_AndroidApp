@@ -127,6 +127,12 @@ public class Port {
         portLocation.setLongitude(this.position.longitude);
         distance = location.distanceTo(portLocation);
     }
+    public float getDistance(Location location) {
+        Location portLocation = new Location("");
+        portLocation.setLatitude(this.position.latitude);
+        portLocation.setLongitude(this.position.longitude);
+        return location.distanceTo(portLocation);
+    }
 
 
     public String getDistanceString() {

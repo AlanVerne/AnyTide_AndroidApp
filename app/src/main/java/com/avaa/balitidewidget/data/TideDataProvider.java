@@ -138,7 +138,7 @@ public class TideDataProvider {
 
         if (precise != null && extremums != null) {
             tideData = new TideData(port.timeZone, precise, extremums);
-            if (tideData.hasDays() <= 0) tideData = null;
+            if (tideData.hasDaysExact() == null) tideData = null;
         }
 
         portIDToTideData.put(portID, tideData);

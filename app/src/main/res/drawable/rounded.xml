@@ -3,13 +3,13 @@
 
     <item android:state_pressed="true"> <!-- pressed -->
         <inset xmlns:android="http://schemas.android.com/apk/res/android"
-            android:insetTop="12dp"
-            android:insetLeft="12dp"
-            android:insetRight="12dp"
-            android:insetBottom="12dp"
+            android:insetTop="14.67dp"
+            android:insetLeft="14.67dp"
+            android:insetRight="14.67dp"
+            android:insetBottom="14.67dp"
             >
         <shape xmlns:android="http://schemas.android.com/apk/res/android" >
-            <solid android:color="#ffeeeeee"/>
+            <solid android:color="#fff2f2f2"/>
             <corners
                 android:bottomLeftRadius="3dp"
                 android:bottomRightRadius="3dp"
@@ -21,10 +21,10 @@
 
     <item> <!-- default -->
         <inset xmlns:android="http://schemas.android.com/apk/res/android"
-            android:insetTop="12dp"
-            android:insetLeft="12dp"
-            android:insetRight="12dp"
-            android:insetBottom="12dp"
+            android:insetTop="14dp"
+            android:insetLeft="14dp"
+            android:insetRight="14dp"
+            android:insetBottom="14dp"
             >
         <shape xmlns:android="http://schemas.android.com/apk/res/android" >
             <solid android:color="@android:color/white"/>

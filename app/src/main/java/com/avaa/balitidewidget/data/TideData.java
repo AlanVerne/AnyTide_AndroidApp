@@ -156,13 +156,15 @@ public class TideData {
 
 
     public boolean needUpdate() {
-        return hasDays() < 7;
+        int[] days = hasDaysExact();
+        return days[1]-days[0] < 7;
     }
     public boolean needAndCanUpdate(int needDays) {
         long currentTimeMillis = System.currentTimeMillis();
+        int[] days = hasDaysExact();
         return (fetched == 0 || fetched + 60*1000 < currentTimeMillis) &&
                (fetchedSuccessfully == 0 || fetchedSuccessfully + 60*60*1000 < currentTimeMillis) &&
-               hasDays() < needDays;
+                days[1]-days[0] < needDays;
     }
     public boolean needAndCanUpdate() {
         long currentTimeMillis = System.currentTimeMillis();
