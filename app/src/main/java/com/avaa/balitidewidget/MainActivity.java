@@ -28,6 +28,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -579,16 +580,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i(TAG, "onCreate1");
         initVariablesAndProviders();
-
+        Log.i(TAG, "onCreate3");
         setContentView(R.layout.activity_main);
-
+        Log.i(TAG, "onCreate4");
         initViewsVariables();
+        Log.i(TAG, "onCreate5");
         initViews(savedInstanceState);
-
+        Log.i(TAG, "onCreate6");
         initSelected();
-
+        Log.i(TAG, "onCreate7");
         initWidgets();
+        Log.i(TAG, "onCreate8");
 
 //        vSpace.setOnGenericMotionListener(new View.OnGenericMotionListener() {
 //            @Override

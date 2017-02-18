@@ -15,8 +15,8 @@ android {
         applicationId 'com.avaa.balitidewidget'
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 25
-        versionName '1.25'
+        versionCode 27
+        versionName '1.27'
     }
     buildTypes {
         release {
@@ -52,9 +52,7 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
     compile 'com.google.android.gms:play-services:9.8.0'
     compile 'com.android.support:support-v4:24.2.1'
-
     // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
-    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.3.0'
-
-//    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.univocity:univocity-parsers:2.3.0'
+    //    compile 'com.google.code.gson:gson:2.8.0'
 }

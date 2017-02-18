@@ -64,6 +64,7 @@ public class Ports extends LinkedHashMap<String, Port> {
 
             String[] row;
             while ((row = parser.parseNext()) != null) {
+                //if (row.length < 9) continue;
                 if (row[4] != null && !row[4].isEmpty() && row[5] != null && !row[5].isEmpty()) {
                     LatLng latLng = new LatLng(Double.valueOf(row[4]), Double.valueOf(row[5]));
 
