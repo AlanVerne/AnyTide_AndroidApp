@@ -640,7 +640,6 @@ public class MainActivity extends AppCompatActivity {
             port = PORTS.get(portID);
             if (port == null) portID = null;
         }
-
         if (portID == null) {
             setPortViewsVisible(false);
         }
@@ -909,7 +908,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         updateCharts();
-
 //        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(selectedPort.position, ZOOM_IN);
 //        googleMap.animateCamera(cameraUpdate);
 
@@ -917,7 +915,6 @@ public class MainActivity extends AppCompatActivity {
         updatePortTitle();
         updateStar();
         updateDifferentTimezone();
-
         updateDates();
 
         svScroll.post(new Runnable() {

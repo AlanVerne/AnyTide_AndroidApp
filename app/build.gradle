@@ -15,8 +15,8 @@ android {
         applicationId 'com.avaa.balitidewidget'
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 27
-        versionName '1.27'
+        versionCode 28
+        versionName '1.28'
     }
     buildTypes {
         release {
