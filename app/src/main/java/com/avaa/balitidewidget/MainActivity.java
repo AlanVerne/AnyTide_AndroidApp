@@ -935,7 +935,7 @@ public class MainActivity extends AppCompatActivity {
         return DateFormat.format(D_MMMM_EEEE, calendar).toString();
     }
     private void updateDates() {
-        Calendar calendar = new GregorianCalendar(selectedPort.timeZone);
+        Calendar calendar = selectedPort == null ? new GregorianCalendar() : new GregorianCalendar(selectedPort.timeZone);
 
         int today = calendar.get(Calendar.DAY_OF_YEAR);
         shownDay = today;

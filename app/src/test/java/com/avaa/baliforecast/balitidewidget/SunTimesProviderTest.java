@@ -11,11 +11,11 @@ import org.junit.Test;
 import static java.lang.System.out;
 
 public class SunTimesProviderTest {
-    private static final Ports ports = new Ports(null);
+    private static final Ports PORTS = new Ports(null);
 
     @Test
     public static void test() throws Exception {
-        SunTimesProviderByWiki.SunTimes sunTimesWiki = SunTimesProviderByWiki.get(ports.get("5382").position, 0);
+        SunTimesProviderByWiki.SunTimes sunTimesWiki = SunTimesProviderByWiki.get(PORTS.get("5382").position, 0);
         out.println(sunTimesWiki.toString());
 
         check("5382");
@@ -24,7 +24,7 @@ public class SunTimesProviderTest {
     }
 
     private static void check(String portID) {
-        Port port = ports.get(portID);
+        Port port = PORTS.get(portID);
         SunTimes sunTimes = SunTimesProvider.get(port.position, port.timeZone);
         out.println(port.getName() + ": \t" + sunTimes.toString());
     }

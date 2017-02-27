@@ -141,7 +141,7 @@ public class Ports extends LinkedHashMap<String, Port> {
     }
     public void saveToSP(SharedPreferences sp) {
         Set<String> favoritePorts = new HashSet<>();
-        for (Entry<String, Port> portEntry : entrySet()) {
+        for (Entry<String, Port> portEntry : this.entrySet()) {
             if (portEntry.getValue().favorite) favoritePorts.add(portEntry.getKey());
         }
         sp.edit().putStringSet(SPKEY_FAVORITE_PORTS, favoritePorts).apply();

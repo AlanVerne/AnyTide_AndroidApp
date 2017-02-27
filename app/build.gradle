@@ -9,25 +9,37 @@ android {
             storePassword 'iamalive'
         }
     }
-    compileSdkVersion 24
-    buildToolsVersion "24.0.0"
+
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId 'com.avaa.balitidewidget'
         minSdkVersion 15
-        targetSdkVersion 24
-        versionCode 28
-        versionName '1.28'
+        targetSdkVersion 25
+        versionCode 29
+        versionName '1.29'
+        signingConfig signingConfigs.release
+
+//        jackOptions {
+//            enabled true
+//        }
     }
+
     buildTypes {
         release {
-            shrinkResources true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            shrinkResources true
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
             signingConfig signingConfigs.release
         }
     }
+
     productFlavors {
     }
+
     useLibrary 'org.apache.http.legacy'
 
 //    testOptions {
@@ -39,20 +51,27 @@ android {
 //            }
 //        }
 //    }
+
+    apply plugin: 'me.tatarka.retrolambda'
+
     compileOptions {
-        targetCompatibility 1.7
-        sourceCompatibility 1.7
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
     }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.google.android.gms:play-services:9.8.0'
-    compile 'com.android.support:support-v4:24.2.1'
-    // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
-    compile 'com.univocity:univocity-parsers:2.3.0'
-    //    compile 'com.google.code.gson:gson:2.8.0'
+
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support:design:25.2.0'
+    compile 'com.android.support:support-v4:25.2.0'
+
+    compile 'com.google.android.gms:play-services-maps:10.2.0'
+    compile 'com.google.firebase:firebase-appindexing:10.2.0'
+
+    compile 'com.univocity:univocity-parsers:2.3.0' // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
+
+    //compile 'com.google.code.gson:gson:2.8.0'
 }

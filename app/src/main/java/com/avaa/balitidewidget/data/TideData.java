@@ -1,6 +1,7 @@
 package com.avaa.balitidewidget.data;
 
 import android.graphics.Path;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.avaa.balitidewidget.Common;
@@ -46,7 +47,7 @@ public class TideData {
     }
 
 
-    public TideData(TimeZone timeZone, Long fetched) {
+    public TideData(@NonNull TimeZone timeZone, Long fetched) {
         this.timeZone = timeZone;
 
         this.fetched = fetched;
@@ -55,10 +56,10 @@ public class TideData {
         this.preciseStr = null;
         this.extremumsStr = null;
     }
-    public TideData(TimeZone timeZone, String preciseStr, String extremumsStr) {
+    public TideData(@NonNull TimeZone timeZone, String preciseStr, String extremumsStr) {
         this(timeZone, preciseStr, extremumsStr, 0l, 0l);
     }
-    public TideData(TimeZone timeZone, final String preciseStr, final String extremumsStr, Long fetched, Long fetchedSuccessfully) {
+    public TideData(@NonNull TimeZone timeZone, final String preciseStr, final String extremumsStr, Long fetched, Long fetchedSuccessfully) {
         this.timeZone = timeZone;
 
         this.fetched = fetched;

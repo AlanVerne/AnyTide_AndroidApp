@@ -204,7 +204,12 @@ public class TideWidget extends AppWidgetProvider {
         String portTimeZoneID = sharedPreferences.getString(SPKEY_PORT_TIMEZONE + stringAppWidgetID, null);
 
 //        Log.i(TAG, "getAppWidgetPort("+appWidgetID+") | " + portID + " " + portName + " " + portPosition + " " + portTimeZoneID);
-        if (portTimeZoneID == null || portPosition == null) return getPorts().get(portID); // backward compatibility
+
+        if (portTimeZoneID == null || portPosition == null) { // backward compatibility
+            Port port = getPorts().get(portID);
+            if (port == null) port = getPorts().get(Common.BENOA_PORT_ID);
+            return port;
+        }
 
         return new Port(portID, portName, portPosition, portTimeZoneID);
     }
