@@ -653,12 +653,7 @@ public class MainActivity extends AppCompatActivity {
         if (oldSelectedPortID != null) updateMarker(PORTS.get(oldSelectedPortID), oldSelectedPortID);
         if (portID != null) updateMarker(port, portID);
 
-        mvMap.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updateAll();
-            }
-        }, 10);
+        mvMap.postDelayed(() -> updateAll(), 10);
     }
 
 
@@ -882,7 +877,7 @@ public class MainActivity extends AppCompatActivity {
     int chartWidth = 0;
     int chartHeight = 0;
     private Point getImageSize() {
-        return new Point(chartWidth, chartHeight);
+        return chartWidth == 0 ? null : new Point(chartWidth, chartHeight);
     }
 
 
@@ -890,11 +885,13 @@ public class MainActivity extends AppCompatActivity {
         if (selectedPort == null) return;
         if (daysRange != null && daysRange[0] != 0) { update(0); return; }
         Point size = getImageSize();
+        if (size == null) return;
         imageViews[0].setImageBitmap(drawer.draw(size.x, size.y, tideData, 0, 0, imageViewsHourly[0], selectedPort));
     }
     public void update(int i) {
         if (selectedPort == null) return;
         Point size = getImageSize();
+        if (size == null) return;
         if (i > 1) size.y = (int)(size.y * 0.66);
         int day = daysRange == null ? i : i+daysRange[0];
         imageViews[i].setImageBitmap(drawer.draw(size.x, size.y, tideData, day, day == 0 ? 0 : -1, imageViewsHourly[i], selectedPort));
@@ -979,7 +976,7 @@ public class MainActivity extends AppCompatActivity {
         tideData = tideDataProvider.get(selectedPort);
 
         Point size = getImageSize();
-        if (size.x == 0 || size.y == 0) return;
+        if (size == null) return;
 
         //setTideLoadingInProgress(true);
         //updateDates();
