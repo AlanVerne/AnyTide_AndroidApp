@@ -98,7 +98,7 @@ public class ObservableScrollView extends ScrollView {
         if (mGestureDetector.onTouchEvent(ev)) { }
         else if (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL) {
             down = false;
-            scrollViewListener.interactionFinished();
+            if (scrollViewListener != null) scrollViewListener.interactionFinished();
         }
         return b;
     }
@@ -111,7 +111,7 @@ public class ObservableScrollView extends ScrollView {
             try {
                 if (Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                     down = false;
-                    scrollViewListener.interactionFinishedWithSwing((int)velocityY);
+                    if (scrollViewListener != null) scrollViewListener.interactionFinishedWithSwing((int)velocityY);
                     return true;
                 }
             }

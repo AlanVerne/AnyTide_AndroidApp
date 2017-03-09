@@ -34,7 +34,7 @@ public class TideChartDrawer {
     private static final int BLUE = 0xff0fabec; //55ccff;
     private static final int AVE_BLUE = 0xff0d93cb; //40b0e0;
     private static final int DARK_BLUE = 0xff0a77a5; //337799;
-    private static final int RED = 0xffbb1111;
+    public static final int RED = 0xffbb1111;
 
     private static final int GRAY_LEVEL_SCALE_LINE = 0x88f2f2f2;
     private static final int GRAY_LEVEL_SCALE = 0xfff2f2f2;
@@ -161,6 +161,8 @@ public class TideChartDrawer {
 //        Log.i("TCD", "draw " + width + " " + height);
 
         Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        if (port == null) return b;
+
         c = new Canvas(b);
 
         w = width  - border*2;

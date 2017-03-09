@@ -15,4 +15,9 @@
     <string name="search_for">サーチ</string>
     <string name="no_data">データなし</string>
     <string name="different_time_zone">異なるタイムゾーン:</string>
+    <string name="rate_title">Rate app if you enjoy it</string>
+    <string name="rate_msg">\nWe\'ll be glad to receive\nyour feedback. Thanks!\n\nAlan and Sergei.</string>
+    <string name="rate_later">later</string>
+    <string name="rate_no">no, never</string>
+    <string name="rate_rate">rate app</string>
 </resources>

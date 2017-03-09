@@ -16,4 +16,9 @@
     <string name="search_for">Поиск…</string>
     <string name="no_data">Нет данных</string>
     <string name="different_time_zone">Другой часовой пояс:</string>
+    <string name="rate_title">Оцените приложение, если оно Вам нравится</string>
+    <string name="rate_msg">\nМы будем рады Вашему\nотзыву. Спасибо!\n\nАлан и Сергей.</string>
+    <string name="rate_later">позже</string>
+    <string name="rate_no">нет, никогда</string>
+    <string name="rate_rate">оценить</string>
 </resources>

@@ -46,6 +46,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.avaa.balitidewidget.data.AppStat;
 import com.avaa.balitidewidget.data.DistanceUnits;
 import com.avaa.balitidewidget.data.TideChartDrawer;
 import com.avaa.balitidewidget.views.ExtendedEditText;
@@ -82,6 +83,9 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.avaa.balitidewidget.data.Port.getTimeZoneString;
 
@@ -141,72 +145,62 @@ public class MainActivity extends AppCompatActivity {
 
     private PortsListViewAdapter lvSearchResultsAdapter = null;
 
-    private final OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
-        @Override
-        public void onMapReady(final GoogleMap googleMap) {
-            MainActivity.this.googleMap = googleMap;
-            googleMap.getUiSettings().setRotateGesturesEnabled(false);
-            googleMap.getUiSettings().setCompassEnabled(false);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+    private final OnMapReadyCallback onMapReadyCallback = googleMap1 -> {
+        MainActivity.this.googleMap = googleMap1;
+        googleMap1.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap1.getUiSettings().setCompassEnabled(false);
+        googleMap1.getUiSettings().setMyLocationButtonEnabled(false);
 
-
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                googleMap.setMyLocationEnabled(true);
-            }
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            googleMap1.setMyLocationEnabled(true);
+        }
 
 //                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
 //                    googleMap.setMyLocationEnabled(true);
 
-            for (Map.Entry<String, Port> port : PORTS.entrySet()) {
-                if (port.getValue().favorite) showMarker(port.getValue(), port.getKey());
-            }
-
-            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker) {
-                    setSelectedPort(marker.getSnippet());
-                    return true;
-                }
-            });
-            googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-                @Override
-                public void onCameraMove() {
-                    if (googleMap.getCameraPosition().zoom > 7) {
-                        findViewById(R.id.flHintZoomIn).setVisibility(View.INVISIBLE);
-
-                        LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
-
-                        int max = 50;
-                        for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
-                            if (bounds.contains(entry.getValue().position) || entry.getValue().favorite) {
-                                if (max > 0 || entry.getValue().favorite) {
-                                    max--;
-                                    showMarker(entry.getValue(), entry.getKey());
-                                }
-                                else hideMarker(entry.getValue());
-                            } else {
-                                hideMarker(entry.getValue());
-                            }
-                        }
-                    }
-                    else {
-                        findViewById(R.id.flHintZoomIn).setVisibility(View.VISIBLE);
-
-                        for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
-                            if (!entry.getValue().favorite) hideMarker(entry.getValue());
-                        }
-                    }
-                }
-            });
-
-            Location myLocation = updateMyLocation();
-
-            PORTS.setMyLocation(myLocation);
-
-            initSelected();
-
-            if (selectedPort != null) showMarker(selectedPort, selectedPortID);
+        for (Map.Entry<String, Port> port : PORTS.entrySet()) {
+            if (port.getValue().favorite) showMarker(port.getValue(), port.getKey());
         }
+
+        googleMap1.setOnMarkerClickListener(marker -> {
+            setSelectedPort(marker.getSnippet());
+            return true;
+        });
+        googleMap1.setOnCameraMoveListener(() -> {
+            if (googleMap1.getCameraPosition().zoom > 7) {
+                findViewById(R.id.flHintZoomIn).setVisibility(View.INVISIBLE);
+
+                LatLngBounds bounds = googleMap1.getProjection().getVisibleRegion().latLngBounds;
+
+                int max = 50;
+                for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
+                    if (bounds.contains(entry.getValue().position) || entry.getValue().favorite) {
+                        if (max > 0 || entry.getValue().favorite) {
+                            max--;
+                            showMarker(entry.getValue(), entry.getKey());
+                        }
+                        else hideMarker(entry.getValue());
+                    } else {
+                        hideMarker(entry.getValue());
+                    }
+                }
+            }
+            else {
+                findViewById(R.id.flHintZoomIn).setVisibility(View.VISIBLE);
+
+                for (Map.Entry<String, Port> entry : PORTS.entrySet()) {
+                    if (!entry.getValue().favorite) hideMarker(entry.getValue());
+                }
+            }
+        });
+
+        Location myLocation = updateMyLocation();
+
+        PORTS.setMyLocation(myLocation);
+
+        initSelected();
+
+        if (selectedPort != null) showMarker(selectedPort, selectedPortID);
     };
 
     public boolean allowScrollToZero = false;
@@ -215,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
         public void scroll(int l, int kt, int oldl, int oldt) {
             int scrollY = svScroll.getScrollY();
 
-            //Log.i(TAG, "scroll " + scrollY + " " + svScroll.isDown());
+            Log.i(TAG, "scroll " + scrollY + " " + svScroll.isDown());
 
             if (!svScroll.isDown() && scrollY <= 0) setSelectedPort(null); //setPortViewsVisible(false);
 
@@ -246,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         public void interactionFinished() {
             int scrollY = svScroll.getScrollY();
 
-            //Log.i(TAG, "interactionFinished " + scrollY + " " + svScroll.isDown());
+            Log.i(TAG, "interactionFinished " + scrollY + " " + svScroll.isDown());
 
             if (scrollY == 0) {
                 setSelectedPort(null);
@@ -265,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void interactionFinishedWithSwing(int v) {
             int scrollY = svScroll.getScrollY();
-            //Log.i(TAG, "interactionFinishedWithSwing " + scrollY + " " + svScroll.isDown());
+            Log.i(TAG, "interactionFinishedWithSwing " + scrollY + " " + svScroll.isDown());
             int dy = textViews[0].getHeight() + chartHeight;
             if (scrollY <= dy) {
                 if (v > 0) {
@@ -274,32 +268,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else svScroll.smoothScrollTo(0, dy); //vSpace.getHeight() + findViewById(R.id.tidesTopShadow).getHeight() - llPortHeader.getHeight());
             }
-        }
-    };
-
-    private final ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-            chartWidth = svScroll.getWidth();
-            chartHeight = svScroll.getHeight();
-
-            //Log.d("DISPLAY", chartWidth + " x " + chartHeight);
-
-            if (chartWidth > chartHeight) chartHeight = chartHeight - findViewById(R.id.textView1).getHeight();
-            else chartHeight = (int)Math.round(chartWidth * 0.75);
-
-            tideLoadingIndicator.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
-            findViewById(R.id.tvNoData).setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight - (int)(80 * density)));
-
-            imageViews[0].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
-            imageViews[1].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
-
-            vSpace.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), svScroll.getHeight())); // - (int) (density * 3)));
-
-            updateAll();
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            else findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
     };
 
@@ -339,11 +307,8 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void loadingStateChanged(final String portID, final boolean loading) {
-                tideLoadingIndicator.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (portID.equals(selectedPortID)) setTideLoadingInProgress(loading);
-                    }
+                tideLoadingIndicator.post(() -> {
+                    if (portID.equals(selectedPortID)) setTideLoadingInProgress(loading);
                 });
             }
         });
@@ -386,15 +351,31 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < imageViewsHourly.length; i++) imageViewsHourly[i] = true;
 
-        findViewById(Window.ID_ANDROID_CONTENT).getViewTreeObserver().addOnGlobalLayoutListener(globalLayoutListener);
-
-        vSpace.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnClosePortClick(null);
-            }
-        });
+        vSpace.setOnClickListener(v -> btnClosePortClick(null));
         svScroll.setScrollViewListener(svScrollSVListener);
+        svScroll.addOnLayoutChangeListener((view, l,t,r,b, ol,ot,or,ob) -> {
+            Log.i(TAG, "svScroll.addOnLayoutChangeListener()");
+
+            if (r-l==or-ol && b-t==ob-ot) return;
+
+            chartWidth = svScroll.getWidth();
+            chartHeight = svScroll.getHeight();
+
+//            Log.d("DISPLAY", chartWidth + " x " + chartHeight);
+
+            if (chartWidth > chartHeight) chartHeight = chartHeight - findViewById(R.id.textView1).getHeight();
+            else chartHeight = (int)Math.round(chartWidth * 0.75);
+
+            tideLoadingIndicator.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
+            findViewById(R.id.tvNoData).setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight - (int)(80 * density)));
+
+            imageViews[0].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
+            imageViews[1].setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), chartHeight));
+
+            vSpace.setLayoutParams(new LinearLayout.LayoutParams(svScroll.getWidth(), svScroll.getHeight())); // - (int) (density * 3)));
+
+            updateAll();
+        });
 
         initSearch();
     }
@@ -403,20 +384,14 @@ public class MainActivity extends AppCompatActivity {
     private void initSearch() {
         lvSearchResultsAdapter = new PortsListViewAdapter(this, android.R.layout.simple_list_item_1);
         lvSearchResults.setAdapter(lvSearchResultsAdapter);
-        lvSearchResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
-                etSearch.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        llSearchScreen.setVisibility(View.GONE);
-                        Port item = lvSearchResultsAdapter.getItem(position); // lvSearchResults.getItemAtPosition(position);
-                        setSelectedPort(item.id);
-                    }
-                }, 100);
-            }
+        lvSearchResults.setOnItemClickListener((parent, view, position, id) -> {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+            etSearch.postDelayed(() -> {
+                llSearchScreen.setVisibility(View.GONE);
+                Port item = lvSearchResultsAdapter.getItem(position); // lvSearchResults.getItemAtPosition(position);
+                setSelectedPort(item.id);
+            }, 100);
         });
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -430,47 +405,30 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.btnClearSearch).setVisibility(s.toString().isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
-        etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) { //Handle search key click
-                    updateSearchResults();
-                    return true;
-                }
-                return false;
+        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) { //Handle search key click
+                updateSearchResults();
+                return true;
             }
+            return false;
         });
-        etSearch.setBackKeyListener(new ExtendedEditText.BackKeyListener() {
-            @Override
-            public void onBackKey() {
-                btnCloseSearchClick(null);
-            }
-        });
-        etSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (b) {
-                    imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
-                }
-                else {
-                    imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
-                }
-            }
-        });
-        etSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        etSearch.setBackKeyListener(() -> btnCloseSearchClick(null));
+        etSearch.setOnFocusChangeListener((view, b) -> {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (b) {
                 imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
             }
-        });
-        lvSearchResults.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                lvSearchResults.requestFocus();
-                return false;
+            else {
+                imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
             }
+        });
+        etSearch.setOnClickListener(view -> {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
+        });
+        lvSearchResults.setOnTouchListener((view, motionEvent) -> {
+            lvSearchResults.requestFocus();
+            return false;
         });
 
         ViewGroup parentGroup = (ViewGroup)lvSearchResults.getParent();
@@ -619,7 +577,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public void onBackPressed() {
         if (llSearchScreen.getVisibility() == View.VISIBLE) {
@@ -633,6 +590,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setSelectedPort(String portID) {
+        Log.i(TAG, "setSelectedPort(" + portID + ")");
+
         if (portID == selectedPortID) return;
 
         Port port = null;
@@ -653,7 +612,7 @@ public class MainActivity extends AppCompatActivity {
         if (oldSelectedPortID != null) updateMarker(PORTS.get(oldSelectedPortID), oldSelectedPortID);
         if (portID != null) updateMarker(port, portID);
 
-        mvMap.postDelayed(() -> updateAll(), 10);
+        rlMap.postDelayed(this::updateAll, 10);
     }
 
 
@@ -664,11 +623,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private ScheduledExecutorService scheduler;
+
+
     @Override
     public void onResume() {
         super.onResume();
 
         mvMap.onResume();
+
+        rlMap.postDelayed(() -> AppStat.appLaunched(this), 1000);
 
         String portID = null;
         Intent intent = getIntent();
@@ -684,23 +648,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Log.i(TAG, "onResume() " + getIntent().getAction() + portID);
 
-        timerOnceIn5Minutes = new Timer();
-
-        final Handler updateOnceIn5Minutes = new Handler() {
-            public void handleMessage(Message msg) {
-                Calendar calendar = new GregorianCalendar();
-                int today = calendar.get(Calendar.DAY_OF_YEAR);
-                if (shownDay != today) updateAll();
-                else updateToday();
-            }
-        };
-
-        timerOnceIn5Minutes.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                updateOnceIn5Minutes.obtainMessage(1).sendToTarget();
-            }
-        }, 100, 1000 * 60 * 5);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+                    Calendar calendar = new GregorianCalendar();
+                    int today = calendar.get(Calendar.DAY_OF_YEAR);
+                    if (shownDay != today) updateAll();
+                    else updateToday();
+                }, 0, 5, TimeUnit.MINUTES);
     }
 
 
@@ -710,7 +664,7 @@ public class MainActivity extends AppCompatActivity {
 
         mvMap.onPause();
 
-        if (timerOnceIn5Minutes != null) timerOnceIn5Minutes.cancel();
+        scheduler.shutdown();
 
         PORTS.saveToSP(sharedPreferences);
     }
@@ -748,7 +702,6 @@ public class MainActivity extends AppCompatActivity {
         if (selectedPort != null) tideDataProvider.fetch(selectedPort);
     }
 
-
     public void ivClick(View view) {
         for (int i = 0; i < imageViews.length; i++) {
             if (view == imageViews[i]) {
@@ -781,10 +734,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //private void updateMarkers() {
-        //PORTS.getInBounds(googleMap.getProjection().getVisibleRegion().latLngBounds);
-    //}
-
     private Location updateMyLocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -814,13 +763,10 @@ public class MainActivity extends AppCompatActivity {
         updateSearchResults();
         llSearchScreen.setVisibility(View.VISIBLE);
         etSearch.selectAll();
-        llSearchScreen.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                etSearch.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
-            }
+        llSearchScreen.postDelayed(() -> {
+            etSearch.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
         }, 0);
     }
 
@@ -836,12 +782,7 @@ public class MainActivity extends AppCompatActivity {
     public void btnCloseSearchClick(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
-        findViewById(R.id.btnCloseSearch).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                llSearchScreen.setVisibility(View.GONE);
-            }
-        }, 100);
+        findViewById(R.id.btnCloseSearch).postDelayed(() -> llSearchScreen.setVisibility(View.GONE), 100);
     }
 
     public void btnStarClick(View view) {
@@ -899,6 +840,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void updateAll() {
+        Log.i(TAG, "updateAll()");
+
         if (selectedPortID == null) {
             svScroll.smoothScrollTo(0, 0);
             return;
@@ -914,13 +857,10 @@ public class MainActivity extends AppCompatActivity {
         updateDifferentTimezone();
         updateDates();
 
-        svScroll.post(new Runnable() {
-            @Override
-            public void run() {
-                setPortViewsVisible(true);
-                svScroll.smoothScrollTo(0, vSpace.getHeight() + findViewById(R.id.tidesTopShadow).getHeight() - llPortHeader.getHeight());
-                //svScroll.smoothScrollTo(0, textViews[0].getHeight() + chartHeight);
-            }
+        svScroll.post(() -> {
+            setPortViewsVisible(true);
+            svScroll.smoothScrollTo(0, vSpace.getHeight() + findViewById(R.id.tidesTopShadow).getHeight() - llPortHeader.getHeight());
+            //svScroll.smoothScrollTo(0, textViews[0].getHeight() + chartHeight);
         });
     }
 
@@ -945,12 +885,12 @@ public class MainActivity extends AppCompatActivity {
         int day = 0;
 
         if (daysRange != null) {
-        for (int i = 0; i < daysRange[0]; i++) {
-            calendar.add(Calendar.DATE, 1);
-            calendarMy.add(Calendar.DATE, 1);
-            day++;
-            shownDay++;
-        }
+            for (int i = 0; i < daysRange[0]; i++) {
+                calendar.add(Calendar.DATE, 1);
+                calendarMy.add(Calendar.DATE, 1);
+                day++;
+                shownDay++;
+            }
         }
 
         if (calendar.get(Calendar.DATE) != calendarMy.get(Calendar.DATE)) {
@@ -973,6 +913,8 @@ public class MainActivity extends AppCompatActivity {
     int[] daysRange = null;
     TideChartsAsyncDrawer aDrawer = null;
     private void updateCharts() {
+        Log.i(TAG, "updateCharts()");
+
         tideData = tideDataProvider.get(selectedPort);
 
         Point size = getImageSize();
